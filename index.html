@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlowEnvy by Ivy — Your Skin, But Luminous</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://js.paystack.co/v2/inline.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --blush: #FDEBF0;
+            --blush-dark: #F5D6DF;
+            --ivory: #FFFAF6;
+            --sage: #7A9277;
+            --sage-light: #E8EDE7;
+            --gold: #C8A96A;
+            --ink: #2D2A26;
+            --ink-60: #6B625C;
+        }
+        * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body { font-family: 'Inter', sans-serif; background: var(--ivory); color: var(--ink); }
+        h1, h2, h3, .serif { font-family: 'Playfair Display', serif; }
+        .glass { background: rgba(255,250,246,0.85); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+        .shadow-soft { box-shadow: 0 10px 30px rgba(45,42,38,0.06); }
+        .shadow-hover { transition: all .3s ease; }
+        .shadow-hover:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(45,42,38,0.1); }
+        .pill { transition: all .2s; }
+        .pill-active { background: var(--ink); color: white; }
+        .no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        input[type="range"] { -webkit-appearance: none; height: 4px; background: var(--blush-dark); border-radius: 4px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: var(--sage); border-radius: 50%; border: 3px solid white; box-shadow: 0 1px 4px rgba(0,0,0,.2); cursor: pointer; }
+        .animate-in { animation: in .3s ease-out; } @keyframes in { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: translateY(0);} }
+    </style>
+</head>
+<body>
+    <!-- Toast -->
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[100] hidden">
+        <div class="bg-[#2D2A26] text-white px-5 py-3 rounded-full shadow-lg text-sm flex items-center gap-2">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9l3 3 6-6"/></svg>
+            <span id="toast-text">Added to cart</span>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 glass border-b border-black/5">
+        <div class="max-w-[1400px] mx-auto px-4 md:px-8">
+            <div class="flex items-center gap-4 h-[68px]">
+                <button id="mobile-menu" class="lg:hidden p-2 -ml-2">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+                </button>
+                <a href="#" class="flex items-center gap-1">
+                    <span class="serif text-[26px] leading-none tracking-tight">GlowEnvy</span>
+                    <span class="text-[11px] uppercase tracking-[0.18em] text-[#6B625C] mt-1">by Ivy</span>
+                </a>
+                
+                <div class="hidden lg:flex items-center gap-6 ml-8">
+                    <div class="relative">
+                        <button id="shop-toggle" class="flex items-center gap-1.5 text-[14px] font-medium hover:text-[#7A9277]">Shop <svg width="14" height="14" fill="none" stroke="currentColor"><path d="M4 6l4 4 4-4"/></svg></button>
+                        <div id="shop-dropdown" class="absolute top-full mt-3 left-0 w-48 bg-white rounded-2xl shadow-soft p-2 hidden animate-in border border-black/5"></div>
+                    </div>
+                    <a href="#about" class="text-[14px] font-medium hover:text-[#7A9277]">Our Story</a>
+                    <button id="quiz-header" class="text-[14px] font-medium hover:text-[#7A9277]">Skin Quiz</button>
+                </div>
+
+                <div class="hidden md:flex flex-1 max-w-[520px] mx-auto">
+                    <div class="relative w-full">
+                        <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9A8F88]" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="8" cy="8" r="6.5"/><path d="M13 13l3.5 3.5"/></svg>
+                        <input id="search" type="search" placeholder="Search products..." class="w-full h-11 pl-10 pr-4 bg-white/70 border border-black/10 rounded-full text-[14px] focus:outline-none focus:ring-2 focus:ring-[#E8EDE7] focus:border-[#7A9277] placeholder:text-[#9A8F88]">
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-1 ml-auto">
+                    <button id="wishlist-btn" class="relative p-2.5 hover:bg-black/5 rounded-full transition">
+                        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 18.5l-6.5-6.3C2.7 10.4 2.7 7.5 4.5 5.7c1.8-1.8 4.7-1.8 6.5 0L11 5.8l.9-.9c1.8-1.8 4.7-1.8 6.5 0 1.8 1.8 4.7 0 6.5L11 18.5Z"/></svg>
+                        <span id="wish-count" class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-[#C8A96A] text-white text-[11px] font-medium rounded-full grid place-items-center hidden">0</span>
+                    </button>
+                    <button id="cart-btn" class="relative p-2.5 hover:bg-black/5 rounded-full transition">
+                        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5h2l1.5 9h9l1.5-6H6"/><circle cx="9" cy="19" r="1.25"/><circle cx="15.5" cy="19" r="1.25"/></svg>
+                        <span id="cart-count" class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-[#2D2A26] text-white text-[11px] font-medium rounded-full grid place-items-center">0</span>
+                    </button>
+                </div>
+            </div>
+            <div class="md:hidden pb-3">
+                <div class="relative">
+                    <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9A8F88]" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="8" cy="8" r="6.5"/><path d="M13 13l3.5 3.5"/></svg>
+                    <input id="search-mobile" type="search" placeholder="Search products..." class="w-full h-10 pl-10 pr-4 bg-white border border-black/10 rounded-full text-[14px] focus:outline-none focus:ring-2 focus:ring-[#E8EDE7]">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="relative overflow-hidden">
+        <div class="absolute inset-0" style="background: radial-gradient(80% 60% at 20% 20%, #FDEBF0 0%, transparent 60%), radial-gradient(70% 50% at 80% 80%, #E8EDE7 0%, transparent 60%), #FFFAF6;"></div>
+        <div class="relative max-w-[1400px] mx-auto px-4 md:px-8 py-14 md:py-24 grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/70 border border-black/5 rounded-full text-[12px] mb-6">
+                    <span class="w-2 h-2 rounded-full bg-[#7A9277] animate-pulse"></span>
+                    Science-backed botanicals • Made in Nigeria
+                </div>
+                <h1 class="serif text-[44px] md:text-[64px] leading-[1.05] tracking-tight">Your Skin,<br>But Luminous</h1>
+                <p class="mt-5 text-[17px] leading-relaxed text-[#6B625C] max-w-[520px]">Clinically-tested formulas with niacinamide, ceramides, and African botanicals. No harsh sulfates, no fragrance overload—just calm, glowing skin.</p>
+                <div class="mt-8 flex flex-wrap gap-3">
+                    <a href="#catalog" class="px-7 h-[48px] grid place-items-center bg-[#2D2A26] text-white rounded-full font-medium hover:opacity-90 transition">Shop All</a>
+                    <button id="quiz-hero" class="px-7 h-[48px] grid place-items-center bg-white border border-black/10 rounded-full font-medium hover:bg-[#FDEBF0]/50 transition">Take Skin Quiz</button>
+                </div>
+                <div class="mt-10 flex items-center gap-6">
+                    <div class="flex -space-x-2">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80" class="w-9 h-9 rounded-full border-2 border-white object-cover" alt="">
+                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80" class="w-9 h-9 rounded-full border-2 border-white object-cover" alt="">
+                        <img src="https://images.unsplash.com/photo-1526510747491-58f928ec870f?w=80" class="w-9 h-9 rounded-full border-2 border-white object-cover" alt="">
+                    </div>
+                    <div class="text-[13px] leading-tight">
+                        <div class="flex text-[#C8A96A]">★★★★★</div>
+                        <div class="text-[#6B625C] mt-0.5">Loved by 12,000+ Nigerians</div>
+                    </div>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="aspect-[4/3] md:aspect-[5/4] rounded-[32px] overflow-hidden shadow-soft bg-white">
+                    <img src="https://res.cloudinary.com/dvojnfcts/image/upload/v1783600557/glowenvy_hero_banner_fb8mnv.webp" alt="GlowEnvy products" class="w-full h-full object-cover">
+                </div>
+                <div class="absolute -bottom-6 -left-6 bg-white rounded-3xl p-4 shadow-soft border border-black/5 hidden md:flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-[#E8EDE7] grid place-items-center">
+                        <svg width="24" height="24" fill="none" stroke="#7A9277" stroke-width="1.5"><path d="M12 3l2.5 5 5.8-4 3.9.9 5.5L12 16l-4.9 2.2.9-5.5-4-3.9 5.5-.8L12 3z"/></svg>
+                    </div>
+                    <div>
+                        <div class="text-[12px] text-[#6B625C]">Dermatologist Tested</div>
+                        <div class="font-medium -mt-0.5">0% Fragrance Irritants</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Category Pills -->
+    <section class="max-w-[1400px] mx-auto px-4 md:px-8 -mt-2 md:mt-0">
+        <div id="category-pills" class="flex gap-2 overflow-x-auto no-scrollbar py-4"></div>
+    </section>
+
+    <!-- Catalog -->
+    <main id="catalog" class="max-w-[1400px] mx-auto px-4 md:px-8 py-8 md:py-12">
+        <div class="flex lg:gap-10">
+            <!-- Filters Sidebar -->
+            <aside id="filters" class="hidden lg:block w-[260px] shrink-0">
+                <div class="sticky top-[88px] bg-white rounded-[28px] border border-black/5 p-5 shadow-soft max-h-[calc(100vh-110px)] overflow-auto">
+                    <div class="flex items-center justify-between">
+                        <h3 class="serif text-[20px]">Filters</h3>
+                        <button id="clear-filters" class="text-[12px] text-[#7A9277] hover:underline">Clear</button>
+                    </div>
+                    
+                    <div class="mt-5 space-y-6">
+                        <div>
+                            <p class="text-[13px] font-medium mb-2">Category</p>
+                            <div id="filter-categories" class="space-y-2 text-[14px]"></div>
+                        </div>
+                        <div>
+                            <p class="text-[13px] font-medium mb-2">Skin Type</p>
+                            <div id="filter-skin" class="space-y-2 text-[14px]"></div>
+                        </div>
+                        <div>
+                            <p class="text-[13px] font-medium mb-2">Price</p>
+                            <input id="price-range" type="range" min="4000" max="170000" step="500" value="170000" class="w-full">
+                            <div class="flex justify-between text-[12px] text-[#6B625C] mt-1"><span>₦4,000</span><span id="price-value">₦170,000</span></div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 text-[14px] cursor-pointer"><input type="checkbox" id="filter-bestseller" class="accent-[#7A9277]"> Bestsellers</label>
+                            <label class="flex items-center gap-2 text-[14px] cursor-pointer"><input type="checkbox" id="filter-new" class="accent-[#7A9277]"> New In</label>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Products -->
+            <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-3 justify-between mb-5">
+                    <div class="flex items-center gap-3">
+                        <button id="open-filters" class="lg:hidden h-10 px-4 bg-white border border-black/10 rounded-full text-[13px] font-medium flex items-center gap-1.5">
+                            <svg width="16" height="16" fill="none" stroke="currentColor"><path d="M4 6h12M6 10h8M8 14h4"/></svg> Filters
+                        </button>
+                        <p id="showing" class="text-[13px] text-[#6B625C]">Showing products…</p>
+                    </div>
+                    <select id="sort" class="h-10 pl-3 pr-8 bg-white border border-black/10 rounded-full text-[13px] focus:outline-none">
+                        <option value="best">Best Selling</option>
+                        <option value="new">Newest</option>
+                        <option value="rated">Top Rated</option>
+                        <option value="low">Price: Low to High</option>
+                        <option value="high">Price: High to Low</option>
+                    </select>
+                </div>
+
+                <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-5"></div>
+
+                <div id="pagination" class="flex items-center justify-center gap-2 mt-10"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Features -->
+    <section class="bg-white border-y border-black/5">
+        <div class="max-w-[1400px] mx-auto px-4 md:px-8 py-12 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10">
+            <div class="flex items-start gap-3"><div class="w-10 h-10 rounded-2xl bg-[#E8EDE7] grid place-items-center shrink-0"><svg width="20" height="20" fill="none" stroke="#7A9277"><path d="M5 12l3 3 7-7"/></svg></div><div><p class="font-medium">Clean Ingredients</p><p class="text-[13px] text-[#6B625C]">No parabens, no sulfates</p></div></div>
+            <div class="flex items-start gap-3"><div class="w-10 h-10 rounded-2xl bg-[#FDEBF0] grid place-items-center shrink-0"><svg width="20" height="20" fill="none" stroke="#C8A96A"><circle cx="10" cy="10" r="7.5"/></svg></div><div><p class="font-medium">Dermatologist Tested</p><p class="text-[13px] text-[#6B625C]">Safe for sensitive skin</p></div></div>
+            <div class="flex items-start gap-3"><div class="w-10 h-10 rounded-2xl bg-[#E8EDE7] grid place-items-center shrink-0"><svg width="20" height="20" fill="none" stroke="#7A9277"><path d="M10 3v14M3 10h14"/></svg></div><div><p class="font-medium">Cruelty Free</p><p class="text-[13px] text-[#6B625C]">Never tested on animals</p></div></div>
+            <div class="flex items-start gap-3"><div class="w-10 h-10 rounded-2xl bg-[#FDEBF0] grid place-items-center shrink-0"><span class="text-[18px]">🇳🇬</span></div><div><p class="font-medium">Made in Nigeria</p><p class="text-[13px] text-[#6B625C]">Lagos formulated</p></div></div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="max-w-[1400px] mx-auto px-4 md:px-8 py-16">
+        <div class="flex items-end justify-between mb-8">
+            <h2 class="serif text-[32px] md:text-[40px] leading-tight">Real results, real glow</h2>
+            <div class="flex gap-2">
+                <button id="test-prev" class="w-10 h-10 rounded-full border border-black/10 grid place-items-center hover:bg-black/5">‹</button>
+                <button id="test-next" class="w-10 h-10 rounded-full border border-black/10 grid place-items-center hover:bg-black/5">›</button>
+            </div>
+        </div>
+        <div class="overflow-hidden">
+            <div id="test-track" class="flex transition-transform duration-500"></div>
+        </div>
+    </section>
+
+    <!-- About Ivy -->
+    <section id="about" class="bg-[#FDEBF0]/40">
+        <div class="max-w-[1400px] mx-auto px-4 md:px-8 py-16 grid lg:grid-cols-2 gap-10 items-center">
+            <div class="order-2 lg:order-1">
+                <span class="text-[12px] uppercase tracking-widest text-[#7A9277] font-medium">Our Story</span>
+                <h3 class="serif text-[32px] md:text-[44px] mt-2 leading-tight">Hello, I'm Ivy</h3>
+                <p class="mt-4 text-[16px] leading-relaxed text-[#4A453F]">My journey with skincare started from a personal struggle.</p>
+                <p class="mt-4 text-[16px] leading-relaxed text-[#4A453F]">Years ago, while I was still in school, I used a certain lotion that left me with stretch marks and affected my confidence. I became very conscious of my skin and started searching for products that could help me care for my skin safely without causing more damage.</p>
+                <p class="mt-4 text-[16px] leading-relaxed text-[#4A453F]">That experience opened my eyes to how important it is to understand what we put on our skin. Instead of simply looking for products that promised quick results, I became passionate about learning about skincare, ingredients, formulation and what actually works for different skin types.</p>
+                <p class="mt-4 text-[16px] leading-relaxed text-[#4A453F]">That passion eventually became Glow Envy by Ivy.</p>
+                <p class="mt-4 text-[16px] leading-relaxed text-[#4A453F]">Today, I carefully create and curate skincare solutions with the goal of helping women achieve healthy-looking, radiant and beautiful skin without compromising their skin barrier.</p>
+                <p class="mt-4 text-[16px] leading-relaxed text-[#4A453F]">Glow Envy was born from my own skin journey—and today, it exists to help you feel confident in yours. ✨</p>
+                <p class="mt-4 text-[16px] leading-relaxed text-[#4A453F]">No unrealistic promises. No shortcuts. Just intentional skincare, carefully selected ingredients and routines created with your skin in mind.<br>
+                </p>
+                <p class="mt-3 text-[16px] leading-relaxed text-[#4A453F]">No bleaching. No false promises. Just barrier-first skincare that makes you want to skip foundation.</p>
+                <div class="mt-6 flex items-center gap-4">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100" class="w-12 h-12 rounded-full object-cover" alt="Ivy">
+                    <div><p class="font-medium leading-tight">Cordelia Ivwurie</p><p class="text-[13px] text-[#6B625C]">Founder & Formulator</p></div>
+                </div>
+            </div>
+            <div class="order-1 lg:order-2">
+                <div class="aspect-[4/5] max-w-[480px] ml-auto rounded-[32px] overflow-hidden shadow-soft">
+                    <img src="https://res.cloudinary.com/ny0or3ln/image/upload/v1787521923/IMG_6837.JPG_kl34xr.jpg" class="w-full h-full object-cover" alt="Ivy">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="max-w-[900px] mx-auto px-4 md:px-8 py-16 text-center">
+        <h3 class="serif text-[30px] md:text-[38px]">Get the glow guide</h3>
+        <p class="text-[#6B625C] mt-2">Join 20k+ and get 10% off your first order + skincare tips for Nigerian weather.</p>
+        <form id="newsletter" class="mt-6 flex flex-col sm:flex-row gap-2 max-w-[520px] mx-auto">
+            <input type="email" required placeholder="Your email" class="flex-1 h-12 px-4 bg-white border border-black/10 rounded-full focus:outline-none focus:ring-2 focus:ring-[#E8EDE7]">
+            <button class="h-12 px-7 bg-[#2D2A26] text-white rounded-full font-medium hover:opacity-90">Subscribe</button>
+        </form>
+        <p id="news-msg" class="text-[13px] text-[#7A9277] mt-2 hidden">Thanks! Check your email for 10% off.</p>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-[#2D2A26] text-[#E8DDD2]">
+        <div class="max-w-[1400px] mx-auto px-4 md:px-8 py-14 grid md:grid-cols-4 gap-10">
+            <div>
+                <div class="flex items-baseline gap-1"><span class="serif text-[26px] text-white">GlowEnvy</span><span class="text-[11px] uppercase tracking-[0.18em]">by Ivy</span></div>
+                <p class="mt-3 text-[14px] leading-relaxed text-[#C3B8AE]">Science-backed botanicals for luminous, healthy skin. Proudly Nigerian.</p>
+                <div class="flex gap-3 mt-5">
+                    <a href="https://www.instagram.com/glow_envy_by_ivy_?igsi=MTN5ZXR2MDFodW9wYQ==" aria-label="Instagram" class="w-9 h-9 rounded-full bg-white/10 grid place-items-center hover:bg-white/20">@</a>
+                    <a href="https://www.facebook.com/share/1EHQnz5tJJ/?mibextid=wwXIfr" aria-label="Facebook" class="w-9 h-9 rounded-full bg-white/10 grid place-items-center hover:bg-white/20">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M22.676 0H1.324C.593 0 0 .593 0 1.324v21.352C0 23.408.593 24 1.324 24h11.494v-9.294H9.689v-3.621h3.129V8.41c0-3.099 1.894-4.785 4.659-4.785 1.325 0 2.464.097 2.796.141v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.62h-3.12V24h6.116C23.407 24 24 23.408 24 22.676V1.324C24 .593 23.407 0 22.676 0z"/></svg>
+                    </a>
+                    <a href="https://www.tiktok.com/@glow_envy_by_ivy_?_r=1&_t=ZS-996MtmVMMNh" aria-label="TikTok" class="w-9 h-9 rounded-full bg-white/10 grid place-items-center hover:bg-white/20">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.82c-1.12-1.08-1.67-2.64-1.75-4.17H11.5v14.28c0 2.14-1.74 3.88-3.88 3.88a3.88 3.88 0 0 1-3.88-3.88c0-2.34 2.13-4.13 4.46-3.83V8.4c-4.05-.5-7.46 2.63-7.46 6.7 0 3.9 3.24 6.7 7.35 6.7 4.11 0 7.6-3.25 7.6-7.19V9.02a9.5 9.5 0 0 0 5.56 1.78V6.85c-1.55.03-3.09-.44-4.35-1.63-.13-.13-.25-.26-.32-.4z"/></svg>
+                    </a>
+                </div>
+            </div>
+            <div><p class="font-medium text-white mb-3">Shop</p><ul class="space-y-2 text-[14px] text-[#C3B8AE]"><li><a href="#">Face Care</a></li><li><a href="#">Body Care</a></li><li><a href="#">Sun Protection</a></li><li><a href="#">Supplements</a></li><li><a href="#">Glow Envy Sets</a></li><li><a href="#">Bundles</a></li></ul></div>
+            <div><p class="font-medium text-white mb-3">Help</p><ul class="space-y-2 text-[14px] text-[#C3B8AE]"><li><a href="#" id="footer-shipping">Shipping & Returns</a></li><li><a href="#">Track Order</a></li><li><a href="#">FAQs</a></li><li><a href="https://wa.me/message/KIDR3IIWU4QNJ1">Contact</a></li></ul></div>
+            <div><p class="font-medium text-white mb-3">Contact</p><ul class="space-y-2 text-[14px] text-[#C3B8AE]">
+              <li>Helloglowenvyivy@gmail.com</li>
+            <li>+234 803 289 3457</li><li>Lagos, Nigeria</li><li class="pt-2">Instagram: <a href="#" class="text-white hover:underline">@Glow_envy_by_ivy_</a></li></ul></div>
+        </div>
+        <div class="border-t border-white/10"><div class="max-w-[1400px] mx-auto px-4 md:px-8 py-5 text-[12px] text-[#9A8F88] flex justify-between"><span>© 2025 GlowEnvy by Ivy</span><span>Made with ♡ By Tobbyhq</span></div></div>
+    </footer>
+
+    <!-- Cart Drawer -->
+    <div id="cart-backdrop" class="fixed inset-0 bg-black/40 z-50 hidden"></div>
+    <aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-[420px] bg-[#FFFAF6] z-50 translate-x-full transition-transform duration-300 shadow-2xl flex flex-col">
+        <div class="h-[68px] flex items-center justify-between px-5 border-b border-black/5 shrink-0">
+            <h3 class="serif text-[22px]">Your Bag</h3>
+            <button id="close-cart" class="w-9 h-9 grid place-items-center rounded-full hover:bg-black/5">✕</button>
+        </div>
+        <div id="cart-items" class="flex-1 overflow-auto p-5 space-y-4"></div>
+        <div class="border-t border-black/5 p-5 bg-white/70 backdrop-blur">
+            <div class="flex justify-between text-[14px] mb-1"><span class="text-[#6B625C]">Subtotal</span><span id="cart-subtotal" class="font-medium">₦0</span></div>
+            <p class="text-[12px] text-[#6B625C] mb-3">Shipping calculated at checkout</p>
+            <input id="checkout-email" type="email" placeholder="Email for receipt & order updates" class="w-full h-11 px-4 mb-3 bg-white border border-black/10 rounded-full text-[14px] focus:outline-none focus:ring-2 focus:ring-[#E8EDE7]">
+            <button id="checkout" class="w-full h-12 bg-[#2D2A26] text-white rounded-full font-medium hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2">
+                <span id="checkout-label">Pay with Paystack</span>
+                <svg id="checkout-spinner" class="hidden animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="9" stroke-opacity=".25"/><path d="M21 12a9 9 0 0 0-9-9"/></svg>
+            </button>
+            <button id="keep-shopping" class="w-full h-11 mt-2 text-[14px] hover:underline">Continue Shopping</button>
+        </div>
+    </aside>
+
+    <!-- Shipping Details Modal - Email confirmed -> Shipping -> Paystack -> SheetMonkey -->
+    <div id="shipping-details-modal" class="fixed inset-0 z-[80] hidden">
+        <div id="shipping-form-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+        <div class="relative z-10 max-w-[560px] mx-auto my-6 md:my-10 bg-[#FFFAF6] rounded-[28px] shadow-2xl max-h-[92vh] overflow-hidden flex flex-col">
+            <div class="p-6 md:p-8 border-b border-black/5 shrink-0">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <h3 class="serif text-[26px] leading-tight">Shipping Details</h3>
+                        <p class="text-[13px] text-[#6B625C] mt-1.5">Email confirmed ✓ — where should we deliver your glow?</p>
+                        <div class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 bg-[#E8EDE7] rounded-full text-[12px] font-medium">
+                            <span class="w-1.5 h-1.5 bg-[#7A9277] rounded-full"></span>
+                            <span id="confirmed-email-display">email@example.com</span>
+                        </div>
+                    </div>
+                    <button id="close-shipping-form" class="w-9 h-9 grid place-items-center rounded-full hover:bg-black/5 shrink-0">✕</button>
+                </div>
+            </div>
+            <form id="shipping-form" class="flex-1 overflow-auto p-6 md:p-8 space-y-4">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="text-[13px] font-medium">Full Name *</label>
+                        <input id="ship-fullname" name="fullName" required type="text" placeholder="Ivy Adeyemi" class="mt-1.5 w-full h-11 px-4 bg-white border border-black/10 rounded-full text-[14px] focus:outline-none focus:ring-2 focus:ring-[#E8EDE7] focus:border-[#7A9277]">
+                    </div>
+                    <div>
+                        <label class="text-[13px] font-medium">Phone Number *</label>
+                        <input id="ship-phone" name="phone" required type="tel" placeholder="0801 234 5678" class="mt-1.5 w-full h-11 px-4 bg-white border border-black/10 rounded-full text-[14px] focus:outline-none focus:ring-2 focus:ring-[#E8EDE7]">
+                    </div>
+                    <div>
+                        <label class="text-[13px] font-medium">City *</label>
+                        <input id="ship-city" name="city" required type="text" placeholder="Lagos" class="mt-1.5 w-full h-11 px-4 bg-white border border-black/10 rounded-full text-[14px] focus:outline-none focus:ring-2 focus:ring-[#E8EDE7]">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="text-[13px] font-medium">Delivery Address *</label>
+                        <textarea id="ship-address" name="address" required rows="2" placeholder="Street, house number, landmark" class="mt-1.5 w-full px-4 py-3 bg-white border border-black/10 rounded-[20px] text-[14px] focus:outline-none focus:ring-2 focus:ring-[#E8EDE7] resize-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="text-[13px] font-medium">State *</label>
+                        <select id="ship-state" name="state" required class="mt-1.5 w-full h-11 px-4 bg-white border border-black/10 rounded-full text-[14px] focus:outline-none focus:ring-2 focus:ring-[#E8EDE7]">
+                            <option value="">Select state</option>
+                            <option>Abia</option><option>Adamawa</option><option>Akwa Ibom</option><option>Anambra</option><option>Bauchi</option><option>Bayelsa</option><option>Benue</option><option>Borno</option><option>Cross River</option><option>Delta</option><option>Ebonyi</option><option>Edo</option><option>Ekiti</option><option>Enugu</option><option>FCT - Abuja</option><option>Gombe</option><option>Imo</option><option>Jigawa</option><option>Kaduna</option><option>Kano</option><option>Katsina</option><option>Kebbi</option><option>Kogi</option><option>Kwara</option><option>Lagos</option><option>Nasarawa</option><option>Niger</option><option>Ogun</option><option>Ondo</option><option>Osun</option><option>Oyo</option><option>Plateau</option><option>Rivers</option><option>Sokoto</option><option>Taraba</option><option>Yobe</option><option>Zamfara</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[13px] font-medium">Country</label>
+                        <input value="Nigeria" disabled class="mt-1.5 w-full h-11 px-4 bg-[#F5F0EB] border border-black/5 rounded-full text-[14px] text-[#6B625C]">
+                    </div>
+                </div>
+                <div class="pt-2">
+                    <label class="text-[13px] font-medium">Delivery Note (optional)</label>
+                    <input id="ship-note" name="note" type="text" placeholder="e.g. Leave with security, call before delivery" class="mt-1.5 w-full h-11 px-4 bg-white border border-black/10 rounded-full text-[14px] focus:outline-none focus:ring-2 focus:ring-[#E8EDE7]">
+                </div>
+                <div class="bg-[#FDEBF0]/60 border border-[#F5D6DF] rounded-2xl p-3.5 flex gap-2.5 mt-2">
+                    <span class="text-[13px]">🔒</span>
+                    <p class="text-[12px] leading-relaxed text-[#6B625C]">Your details are secure. After payment is confirmed, we automatically save your order to our fulfillment sheet via SheetMonkey so Ivy's team can ship ASAP.</p>
+                </div>
+                <div class="pt-4 space-y-2.5">
+                    <button type="submit" id="proceed-paystack" class="w-full h-12 bg-[#2D2A26] text-white rounded-full font-medium hover:opacity-90 flex items-center justify-center gap-2">
+                        <span id="proceed-label">Proceed to Pay — ₦0</span>
+                        <svg id="proceed-spinner" class="hidden animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="9" stroke-opacity=".25"/><path d="M21 12a9 9 0 0 0-9-9"/></svg>
+                    </button>
+                    <button type="button" id="back-to-cart" class="w-full h-11 text-[14px] hover:underline">← Back to Bag</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+    <!-- Mobile / Tablet Side Menu -->
+    <div id="mobile-menu-backdrop" class="fixed inset-0 bg-black/40 z-50 hidden lg:hidden"></div>
+    <aside id="mobile-menu-drawer" class="fixed top-0 left-0 h-full w-full max-w-[300px] bg-[#FFFAF6] z-50 -translate-x-full transition-transform duration-300 shadow-2xl flex flex-col lg:hidden">
+        <div class="h-[68px] flex items-center justify-between px-5 border-b border-black/5 shrink-0">
+            <span class="serif text-[22px] leading-none">Menu</span>
+            <button id="close-mobile-menu" class="w-9 h-9 grid place-items-center rounded-full hover:bg-black/5">✕</button>
+        </div>
+        <nav class="flex-1 overflow-auto p-5">
+            <div class="border-b border-black/5 pb-2">
+                <button id="mm-shop-toggle" class="w-full flex items-center justify-between py-3 text-[15px] font-medium">Shop <svg width="14" height="14" fill="none" stroke="currentColor"><path d="M4 6l4 4 4-4"/></svg></button>
+                <div id="mm-shop-list" class="hidden pb-2 pl-2 space-y-0.5"></div>
+            </div>
+            <a href="#about" id="mm-about" class="block py-3 text-[15px] font-medium border-b border-black/5">Our Story</a>
+            <button id="mm-quiz" class="w-full text-left py-3 text-[15px] font-medium border-b border-black/5">Skin Quiz</button>
+            <a href="#" id="mm-shipping" class="block py-3 text-[15px] font-medium border-b border-black/5">Shipping &amp; Returns</a>
+        </nav>
+    </aside>
+
+    <!-- Product Modal -->
+    <div id="product-modal" class="fixed inset-0 z-[60] hidden">
+        <div id="modal-backdrop" class="absolute inset-0 bg-black/60"></div>
+        <div class="relative z-10 max-w-[1100px] mx-auto my-6 md:my-12 bg-[#FFFAF6] rounded-[28px] shadow-2xl max-h-[90vh] overflow-hidden flex flex-col md:flex-row">
+            <button id="close-modal" class="absolute top-3 right-3 z-20 w-9 h-9 bg-white/90 rounded-full grid place-items-center shadow">✕</button>
+            <div class="md:w-[52%] bg-white p-4 md:p-6">
+                <div class="aspect-square rounded-2xl overflow-hidden bg-[#FFFAF6]"><img id="modal-img" src="" class="w-full h-full object-cover" alt=""></div>
+                <div id="modal-thumbs" class="grid grid-cols-4 gap-2 mt-2"></div>
+            </div>
+            <div class="md:w-[48%] p-6 md:p-8 overflow-auto">
+                <span class="text-[11px] uppercase tracking-widest text-[#7A9277]">GlowEnvy</span>
+                <h3 id="modal-name" class="serif text-[28px] leading-tight mt-1"></h3>
+                <div class="flex items-center gap-2 mt-2"><div id="modal-stars" class="text-[#C8A96A] text-[14px]"></div><span id="modal-reviews" class="text-[12px] text-[#6B625C]"></span></div>
+                <p id="modal-price" class="text-[22px] font-medium mt-3"></p>
+
+                <div class="mt-4">
+                    <p class="text-[13px] font-medium mb-1.5">Description</p>
+                    <p id="modal-desc" class="text-[14px] leading-relaxed text-[#4A453F]"></p>
+                </div>
+
+                <div class="mt-6">
+                    <p class="text-[13px] font-medium mb-2">Suitable For</p>
+                    <div id="modal-skin" class="flex flex-wrap gap-1.5"></div>
+                </div>
+
+                <div class="mt-6 flex items-center gap-3">
+                    <div class="flex items-center border border-black/10 rounded-full">
+                        <button id="qty-minus" class="w-10 h-10 grid place-items-center">−</button>
+                        <span id="qty" class="w-8 text-center">1</span>
+                        <button id="qty-plus" class="w-10 h-10 grid place-items-center">+</button>
+                    </div>
+                    <button id="modal-add" class="flex-1 h-11 bg-[#2D2A26] text-white rounded-full font-medium">Add to Bag</button>
+                </div>
+
+                <div class="mt-8 space-y-4 text-[14px]">
+                    <details class="group" open><summary class="flex justify-between cursor-pointer font-medium">Key Benefits <span class="group-open:rotate-180 transition">⌄</span></summary><ul id="modal-benefits" class="mt-2 pl-4 space-y-1 text-[#4A453F] text-[13px] leading-relaxed list-disc"></ul></details>
+                    <details class="group"><summary class="flex justify-between cursor-pointer font-medium">Key Ingredients <span class="group-open:rotate-180 transition">⌄</span></summary><ul id="modal-ing" class="mt-2 pl-4 space-y-1 text-[#4A453F] text-[13px] leading-relaxed list-disc"></ul></details>
+                    <details class="group"><summary class="flex justify-between cursor-pointer font-medium">How to Use <span class="group-open:rotate-180 transition">⌄</span></summary><p id="modal-use" class="mt-2 text-[#4A453F] text-[13px] leading-relaxed"></p></details>
+                </div>
+
+                <div class="mt-4 p-3.5 rounded-2xl bg-[#FDEBF0]/60 border border-[#F5D6DF] flex gap-2.5">
+                    <span class="text-[15px] leading-none mt-0.5" aria-hidden="true">⚠️</span>
+                    <div>
+                        <p class="text-[12px] font-medium text-[#2D2A26]">Caution</p>
+                        <p id="modal-caution" class="mt-1 text-[12.5px] leading-relaxed text-[#6B625C]"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div id="quiz-modal" class="fixed inset-0 z-[70] hidden">
+        <div class="absolute inset-0 bg-black/60"></div>
+        <div class="relative z-10 max-w-[560px] mx-auto my-12 bg-white rounded-[28px] shadow-2xl p-7 md:p-9">
+            <button id="close-quiz" class="absolute top-3 right-3 w-9 h-9 grid place-items-center hover:bg-black/5 rounded-full">✕</button>
+            <h3 class="serif text-[28px]">Find your routine</h3>
+            <p class="text-[14px] text-[#6B625C] mt-1">3 quick questions, dermatologist-backed picks.</p>
+            <div id="quiz-steps" class="mt-6"></div>
+        </div>
+    </div>
+
+    <!-- Shipping & Returns Modal -->
+    <div id="shipping-modal" class="fixed inset-0 z-[70] hidden">
+        <div id="shipping-backdrop" class="absolute inset-0 bg-black/60"></div>
+        <div class="relative z-10 max-w-[560px] mx-auto my-12 bg-white rounded-[28px] shadow-2xl p-7 md:p-9 max-h-[85vh] overflow-auto">
+            <button id="close-shipping" class="absolute top-3 right-3 w-9 h-9 grid place-items-center hover:bg-black/5 rounded-full">✕</button>
+            <h3 class="serif text-[28px]">Shipping &amp; Returns</h3>
+            <p class="text-[14px] text-[#6B625C] mt-1">Please read this before placing your order.</p>
+            <div class="mt-6 space-y-5 text-[14px] leading-relaxed text-[#4A453F]">
+                <div>
+                    <p class="font-medium text-[#2D2A26] mb-1.5">Shipping</p>
+                    <p>Orders are processed within 1-2 business days. Delivery within Lagos usually takes 1-3 business days; other states across Nigeria, 3-7 business days. You'll get a tracking link by email once your order ships.</p>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-[#FDEBF0]/60 border border-[#F5D6DF]">
+                    <p class="font-medium text-[#2D2A26] mb-1.5">Returns policy</p>
+                    <p>We accept returns within 7 days of delivery, but only for products that are <strong>unopened, unused, and in their original packaging</strong> with seals intact. Because these are cosmetic and skincare products, <strong>we're unable to accept a return or issue a refund on anything once it has been opened</strong> — this is for hygiene and safety reasons and applies to every item in the catalog.</p>
+                </div>
+                <div>
+                    <p class="font-medium text-[#2D2A26] mb-1.5">Damaged or incorrect items</p>
+                    <p>If an order arrives damaged, faulty, or wrong, email us within 48 hours of delivery with a photo and your order number — we'll arrange a replacement or refund at no cost to you, even if the item has been opened.</p>
+                </div>
+                <div>
+                    <p class="font-medium text-[#2D2A26] mb-1.5">How to start a return</p>
+                    <p>Email <a href="mailto:helloglowenvyivy@gmail.com" class="text-[#7A9277] hover:underline">Helloglowenvyivy@gmail.com</a> with your order number and reason for return. Once approved, pack the unopened item back in its original box and we'll arrange pickup or share a drop-off point.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Filters -->
+    <div id="mobile-filters" class="fixed inset-0 z-50 hidden lg:hidden">
+        <div id="mf-backdrop" class="absolute inset-0 bg-black/40"></div>
+        <div class="absolute bottom-0 left-0 right-0 bg-[#FFFAF6] rounded-t-[28px] p-5 max-h-[85vh] overflow-auto">
+            <div class="w-12 h-1.5 bg-black/10 rounded-full mx-auto mb-4"></div>
+            <div id="mf-content"></div>
+            <button id="mf-apply" class="w-full h-12 mt-4 bg-[#2D2A26] text-white rounded-full font-medium">Apply Filters</button>
+        </div>
+    </div>
+
+<!-- Product catalog lives in products.js — edit that file to change what's for sale. -->
+<script src="products.js"></script>
+<script>
+const categories = CATEGORIES;
+const skinTypes = SKIN_TYPES;
+
+// Fills in sensible defaults for any optional fields a product left out,
+// and assigns each product a stable position-based id.
+function normalizeProducts(raw){
+  const fallbackImg = 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800&q=80&auto=format&fit=crop';
+  return raw.map((p, i) => ({
+    id: p.id ?? (i+1),
+    name: p.name || 'Untitled product',
+    category: p.category || CATEGORIES[0],
+    price: Number(p.price) || 0,
+    rating: p.rating ?? 4.5,
+    reviews: p.reviews ?? 25,
+    skinTypes: (p.skinTypes && p.skinTypes.length) ? p.skinTypes : [...SKIN_TYPES],
+    image: p.image || fallbackImg,
+    bestseller: !!p.bestseller,
+    isNew: !!p.isNew,
+    description: p.description || '',
+    benefits: p.benefits || '',
+    ingredients: p.ingredients || '',
+    caution: p.caution || '',
+    howToUse: p.howToUse || 'Apply to clean skin AM/PM.'
+  }));
+}
+
+// Turns a newline-separated block of text into a clean array of bullet
+// lines, stripping any leading "- " or "* " the person may have typed.
+function toBulletList(text){
+  return String(text || '')
+    .split('\n')
+    .map(line => line.trim().replace(/^[-*•]\s*/, ''))
+    .filter(Boolean);
+}
+
+const catalog = normalizeProducts(PRODUCTS);
+const savedCart = JSON.parse(localStorage.getItem('ge_cart')||'[]');
+const savedWishlist = JSON.parse(localStorage.getItem('ge_wishlist')||'[]');
+
+const state = {
+  products: catalog,
+  filtered: [],
+  page:1, perPage:12,
+  // Filter out any ids from a previous, larger catalog that no longer exist.
+  cart: savedCart.filter(ci => catalog.some(p=>p.id===ci.id)),
+  wishlist: savedWishlist.filter(id => catalog.some(p=>p.id===id)),
+  filters:{ categories:new Set(), skin:new Set(), price:170000, best:false, new:false },
+  sort:'best',
+  search:''
+};
+
+const NGN = n => '₦' + n.toLocaleString('en-NG');
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const escHtml = s => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+function toast(msg){ $('#toast-text').textContent = msg; const t=$('#toast'); t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),1800); }
+
+function save(){ localStorage.setItem('ge_cart', JSON.stringify(state.cart)); localStorage.setItem('ge_wishlist', JSON.stringify(state.wishlist)); updateCounts(); }
+function updateCounts(){ $('#cart-count').textContent = state.cart.reduce((a,b)=>a+b.qty,0); const wc=$('#wish-count'); wc.textContent = state.wishlist.length; wc.classList.toggle('hidden', state.wishlist.length===0); }
+
+// Render Category Pills
+function renderPills(){
+  const wrap = $('#category-pills');
+  wrap.innerHTML = `<button data-cat="" class="pill pill-active whitespace-nowrap px-4 h-9 rounded-full border border-black/10 text-[13px]">All</button>` + categories.map(c=>`<button data-cat="${c}" class="pill whitespace-nowrap px-4 h-9 rounded-full border border-black/10 text-[13px] hover:bg-black/5">${c}</button>`).join('');
+  wrap.onclick = e => { const b=e.target.closest('button'); if(!b) return; $$('#category-pills .pill').forEach(p=>p.classList.remove('pill-active')); b.classList.add('pill-active'); state.filters.categories = b.dataset.cat ? new Set([b.dataset.cat]) : new Set(); state.page=1; apply(); window.scrollTo({top: $('#catalog').offsetTop-80, behavior:'smooth'}); };
+}
+
+// Filters UI
+function renderFilterOptions(){
+  $('#filter-categories').innerHTML = categories.map(c=>`<label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" value="${c}" class="cat-check accent-[#7A9277]"> ${c}</label>`).join('');
+  $('#filter-skin').innerHTML = skinTypes.map(s=>`<label class="flex items-center gap-2 cursor-pointer capitalize"><input type="checkbox" value="${s}" class="skin-check accent-[#7A9277]"> ${s}</label>`).join('');
+  $$('.cat-check').forEach(cb=>cb.onchange=()=>{ cb.checked?state.filters.categories.add(cb.value):state.filters.categories.delete(cb.value); state.page=1; apply(); });
+  $$('.skin-check').forEach(cb=>cb.onchange=()=>{ cb.checked?state.filters.skin.add(cb.value):state.filters.skin.delete(cb.value); state.page=1; apply(); });
+  $('#filter-bestseller').onchange = e=>{ state.filters.best = e.target.checked; apply(); };
+  $('#filter-new').onchange = e=>{ state.filters.new = e.target.checked; apply(); };
+  $('#price-range').oninput = e=>{ state.filters.price = +e.target.value; $('#price-value').textContent = NGN(state.filters.price); apply(); };
+  $('#clear-filters').onclick = ()=>{ state.filters={categories:new Set(), skin:new Set(), price:170000, best:false, new:false}; $$('input[type=checkbox]').forEach(i=>i.checked=false); $('#price-range').value=170000; $('#price-value').textContent=NGN(170000); apply(); };
+}
+
+// Apply filters
+function apply(){
+  let list = [...state.products];
+  const q = state.search.toLowerCase();
+  if(q) list = list.filter(p=> p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
+  if(state.filters.categories.size) list = list.filter(p=> state.filters.categories.has(p.category));
+  if(state.filters.skin.size) list = list.filter(p=> p.skinTypes.some(s=>state.filters.skin.has(s)));
+  list = list.filter(p=> p.price <= state.filters.price);
+  if(state.filters.best) list = list.filter(p=>p.bestseller);
+  if(state.filters.new) list = list.filter(p=>p.isNew);
+  switch(state.sort){
+    case 'low': list.sort((a,b)=>a.price-b.price); break;
+    case 'high': list.sort((a,b)=>b.price-a.price); break;
+    case 'rated': list.sort((a,b)=>b.rating-a.rating); break;
+    case 'new': list.sort((a,b)=> (b.isNew-a.isNew) || b.id-a.id); break;
+    default: list.sort((a,b)=> (b.bestseller-a.bestseller) || b.rating-a.rating);
+  }
+  state.filtered = list;
+  renderProducts();
+}
+
+function renderProducts(){
+  const grid = $('#product-grid');
+  const start = (state.page-1)*state.perPage;
+  const items = state.filtered.slice(start, start+state.perPage);
+  $('#showing').textContent = `Showing ${state.filtered.length? start+1:0}-${Math.min(start+state.perPage, state.filtered.length)} of ${state.filtered.length}`;
+  grid.innerHTML = items.map(p=>`
+    <article class="group bg-white rounded-[24px] border border-black/5 shadow-soft shadow-hover overflow-hidden flex flex-col">
+      <div class="relative aspect-square bg-[#FFFAF6] overflow-hidden">
+        <img src="${p.image}" alt="${p.name}" loading="lazy" class="w-full h-full object-cover group-hover:scale-[1.03] transition duration-500">
+        <button data-wish="${p.id}" class="absolute top-2.5 right-2.5 w-8 h-8 grid place-items-center bg-white/90 backdrop-blur rounded-full shadow hover:bg-white ${state.wishlist.includes(p.id)?'text-[#C8A96A]':''}">
+          <svg width="18" height="18" fill="${state.wishlist.includes(p.id)?'currentColor':'none'}" stroke="currentColor" stroke-width="1.5"><path d="M9 15l-5.2-5C2.3 8.5 2.3 6 3.8 4.5c1.5-1.5 3.9-1.5 5.4 0l.8.8.8-.8c1.5-1.5 3.9-1.5 5.4 0 1.5 1.5 1.5 4 0 5.5L9 15z"/></svg>
+        </button>
+        ${p.bestseller?'<span class="absolute top-2.5 left-2.5 px-2.5 py-1 text-[11px] font-medium bg-[#2D2A26] text-white rounded-full">Bestseller</span>':''}
+        ${p.isNew?'<span class="absolute top-2.5 left-2.5 px-2.5 py-1 text-[11px] font-medium bg-[#7A9277] text-white rounded-full">New</span>':''}
+        <button data-quick="${p.id}" class="absolute bottom-2.5 inset-x-2.5 h-9 bg-[#2D2A26] text-white rounded-full text-[13px] font-medium opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition md:block hidden">Quick add</button>
+      </div>
+      <div class="p-3.5 flex-1 flex flex-col">
+        <p class="text-[11px] uppercase tracking-widest text-[#7A9277]">GlowEnvy</p>
+        <h3 class="font-medium leading-snug mt-0.5 line-clamp-2 min-h-[40px] cursor-pointer" data-open="${p.id}">${p.name}</h3>
+        <div class="flex items-center gap-1 mt-1"><span class="text-[#C8A96A] text-[13px]">${'★'.repeat(Math.round(p.rating))}${'☆'.repeat(5-Math.round(p.rating))}</span><span class="text-[11px] text-[#6B625C]">(${p.reviews})</span></div>
+        <div class="mt-auto pt-2 flex items-center justify-between">
+          <span class="font-medium">${NGN(p.price)}</span>
+          <button data-add="${p.id}" class="md:hidden w-8 h-8 grid place-items-center rounded-full border border-black/10">+</button>
+        </div>
+      </div>
+    </article>
+  `).join('');
+  grid.onclick = e=>{
+    const wish = e.target.closest('[data-wish]'); if(wish){ toggleWish(+wish.dataset.wish); return; }
+    const quick = e.target.closest('[data-quick]'); if(quick){ addToCart(+quick.dataset.quick,1); return; }
+    const add = e.target.closest('[data-add]'); if(add){ addToCart(+add.dataset.add,1); return; }
+    const open = e.target.closest('[data-open]'); if(open){ openModal(+open.dataset.open); }
+  };
+  renderPagination();
+}
+
+function renderPagination(){
+  const pages = Math.ceil(state.filtered.length/state.perPage)||1;
+  const wrap = $('#pagination'); let html='';
+  const btn = (p,l= p, dis=false, act=false)=>`<button ${dis?'disabled':''} data-page="${p}" class="min-w-[36px] h-9 px-3 rounded-full border ${act?'bg-[#2D2A26] text-white border-[#2D2A26]':'border-black/10 hover:bg-black/5'} text-[13px] disabled:opacity-40">${l}</button>`;
+  html+= btn(state.page-1,'‹', state.page===1);
+  for(let i=1;i<=pages;i++){ if(i===1||i===pages||Math.abs(i-state.page)<=1){ html+= btn(i,i,false,i===state.page); } else if(Math.abs(i-state.page)===2){ html+='<span class="px-1 text-[#9A8F88]">…</span>'; } }
+  html+= btn(state.page+1,'›', state.page===pages);
+  wrap.innerHTML = html;
+  wrap.onclick = e=>{ const b=e.target.closest('[data-page]'); if(!b) return; state.page = +b.dataset.page; renderProducts(); window.scrollTo({top: $('#catalog').offsetTop-80, behavior:'smooth'}); };
+}
+
+function toggleWish(id){ if(state.wishlist.includes(id)) state.wishlist = state.wishlist.filter(x=>x!==id); else state.wishlist.push(id); save(); renderProducts(); }
+function addToCart(id,qty=1){ const item = state.cart.find(i=>i.id===id); if(item) item.qty+=qty; else state.cart.push({id, qty}); save(); toast('Added to bag'); renderCart(); }
+function renderCart(){ const box=$('#cart-items'); if(!state.cart.length){ box.innerHTML = `<div class="h-full grid place-items-center text-center p-10"><div><div class="w-16 h-16 mx-auto rounded-full bg-[#FDEBF0] grid place-items-center mb-3">🛍️</div><p class="font-medium">Your bag is empty</p><p class="text-[13px] text-[#6B625C] mt-1">Add some glow to get started</p></div></div>`; $('#cart-subtotal').textContent = NGN(0); return; }
+  box.innerHTML = state.cart.map(ci=>{ const p=state.products.find(x=>x.id===ci.id); return `<div class="flex gap-3 bg-white rounded-2xl p-3 border border-black/5"><img src="${p.image}" class="w-20 h-20 rounded-xl object-cover"><div class="flex-1 min-w-0"><p class="text-[13px] uppercase tracking-widest text-[#7A9277]">GlowEnvy</p><p class="font-medium leading-snug line-clamp-2">${p.name}</p><p class="text-[13px] text-[#6B625C]">${NGN(p.price)}</p><div class="mt-2 flex items-center gap-2"><button data-dec="${p.id}" class="w-7 h-7 rounded-full border">−</button><span class="w-6 text-center text-[14px]">${ci.qty}</span><button data-inc="${p.id}" class="w-7 h-7 rounded-full border">+</button><button data-rem="${p.id}" class="ml-auto text-[12px] text-[#B44] hover:underline">Remove</button></div></div></div>`; }).join('');
+  const subtotal = state.cart.reduce((s,ci)=>{ const p=state.products.find(x=>x.id===ci.id); return s + p.price*ci.qty; },0);
+  $('#cart-subtotal').textContent = NGN(subtotal);
+  box.onclick = e=>{ const dec=e.target.closest('[data-dec]'); const inc=e.target.closest('[data-inc]'); const rem=e.target.closest('[data-rem]'); if(dec){ updateQty(+dec.dataset.dec,-1);} if(inc){ updateQty(+inc.dataset.inc,1);} if(rem){ state.cart = state.cart.filter(x=>x.id!==+rem.dataset.rem); save(); renderCart(); } };
+}
+function updateQty(id,d){ const it=state.cart.find(x=>x.id===id); if(!it) return; it.qty+=d; if(it.qty<=0) state.cart = state.cart.filter(x=>x.id!==id); save(); renderCart(); }
+
+// Modal
+let modalQty=1, modalProduct=null;
+function openModal(id){ modalProduct = state.products.find(p=>p.id===id); modalQty=1; $('#modal-img').src = modalProduct.image; $('#modal-name').textContent = modalProduct.name; $('#modal-price').textContent = NGN(modalProduct.price); $('#modal-desc').textContent = modalProduct.description; $('#modal-stars').textContent = '★★★★★'.slice(0, Math.round(modalProduct.rating)); $('#modal-reviews').textContent = `(${modalProduct.reviews} reviews)`; $('#modal-benefits').innerHTML = toBulletList(modalProduct.benefits).map(b=>`<li>${escHtml(b)}</li>`).join('') || '<li>No key benefits listed for this product yet.</li>'; $('#modal-ing').innerHTML = toBulletList(modalProduct.ingredients).map(i=>`<li>${escHtml(i)}</li>`).join('') || '<li>No key ingredients listed for this product yet.</li>'; $('#modal-use').textContent = modalProduct.howToUse; $('#modal-caution').textContent = modalProduct.caution || 'No specific cautions noted for this product — always patch test new products before first use.'; $('#modal-skin').innerHTML = modalProduct.skinTypes.map(s=>`<span class="px-2.5 py-1 bg-[#E8EDE7] text-[#2D2A26] rounded-full text-[11px] capitalize">${s}</span>`).join(''); $('#qty').textContent = '1'; $('#modal-thumbs').innerHTML = Array.from({length:4}).map((_,i)=>`<button class="aspect-square rounded-xl overflow-hidden border ${i===0?'border-[#7A9277]':'border-black/10'}"><img src="${modalProduct.image}" class="w-full h-full object-cover"></button>`).join(''); $('#product-modal').classList.remove('hidden'); document.body.style.overflow='hidden'; }
+function closeModal(){ $('#product-modal').classList.add('hidden'); document.body.style.overflow=''; }
+$('#close-modal').onclick = closeModal; $('#modal-backdrop').onclick = closeModal;
+$('#qty-minus').onclick = ()=>{ modalQty=Math.max(1,modalQty-1); $('#qty').textContent=modalQty; };
+$('#qty-plus').onclick = ()=>{ modalQty++; $('#qty').textContent=modalQty; };
+$('#modal-add').onclick = ()=>{ addToCart(modalProduct.id, modalQty); closeModal(); };
+
+// Cart drawer
+const openCart = ()=>{ $('#cart-drawer').classList.remove('translate-x-full'); $('#cart-backdrop').classList.remove('hidden'); renderCart(); };
+const closeCart = ()=>{ $('#cart-drawer').classList.add('translate-x-full'); $('#cart-backdrop').classList.add('hidden'); };
+$('#cart-btn').onclick = openCart; $('#close-cart').onclick = closeCart; $('#cart-backdrop').onclick = closeCart; $('#keep-shopping').onclick = closeCart;
+// Paystack + Shipping + SheetMonkey Flow - FIXED VERSION
+// Paystack public key - test mode (safe for frontend)
+const PAYSTACK_PUBLIC_KEY = 'pk_test_f8c3f14945cf6def52c13c8af292a303b6aff39f';
+
+// SheetMonkey Configuration - Your designated spreadsheet
+const SHEETMONKEY_URL = 'https://api.sheetmonkey.io/form/nwzBDuKWDpHMDroZQDqnRc';
+const SHEETMONKEY_ENABLED = true;
+
+console.log('[GlowEnvy] SheetMonkey URL:', SHEETMONKEY_URL);
+
+function setCheckoutLoading(loading){
+  const btn = document.getElementById('checkout');
+  const label = document.getElementById('checkout-label');
+  const spinner = document.getElementById('checkout-spinner');
+  if(btn) btn.disabled = loading;
+  if(label) label.textContent = loading ? 'Verifying payment…' : 'Continue to Shipping';
+  if(spinner) spinner.classList.toggle('hidden', !loading);
+}
+function setProceedLoading(loading){
+  const btn = document.getElementById('proceed-paystack');
+  const label = document.getElementById('proceed-label');
+  const spinner = document.getElementById('proceed-spinner');
+  if(btn) btn.disabled = loading;
+  if(spinner) spinner.classList.toggle('hidden', !loading);
+  if(loading && label) label.textContent = 'Opening Paystack…';
+}
+
+let pendingOrder = {
+  email: '',
+  subtotal: 0,
+  reference: '',
+  shipping: null
+};
+
+function openShippingForm(email){
+  pendingOrder.email = email;
+  const subtotal = state.cart.reduce((s,ci)=>{ const p=state.products.find(x=>x.id===ci.id); return s + (p?p.price*ci.qty:0); },0);
+  pendingOrder.subtotal = subtotal;
+  const emailDisplay = document.getElementById('confirmed-email-display');
+  const proceedLabel = document.getElementById('proceed-label');
+  if(emailDisplay) emailDisplay.textContent = email;
+  if(proceedLabel) proceedLabel.textContent = `Proceed to Pay — ${NGN(subtotal)}`;
+
+  // Restore saved shipping if exists
+  try{
+    const saved = JSON.parse(localStorage.getItem('ge_shipping')||'{}');
+    if(saved.fullName) document.getElementById('ship-fullname').value = saved.fullName;
+    if(saved.phone) document.getElementById('ship-phone').value = saved.phone;
+    if(saved.address) document.getElementById('ship-address').value = saved.address;
+    if(saved.city) document.getElementById('ship-city').value = saved.city;
+    if(saved.state) document.getElementById('ship-state').value = saved.state;
+    if(saved.note) document.getElementById('ship-note').value = saved.note;
+  }catch(e){}
+
+  document.getElementById('shipping-details-modal').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+}
+
+function closeShippingForm(){
+  document.getElementById('shipping-details-modal').classList.add('hidden');
+  // Keep body locked if cart is open, otherwise unlock
+  const cartDrawer = document.getElementById('cart-drawer');
+  if(cartDrawer && cartDrawer.classList.contains('translate-x-full')){
+    document.body.style.overflow='';
+  }
+}
+
+document.getElementById('close-shipping-form')?.addEventListener('click', closeShippingForm);
+document.getElementById('shipping-form-backdrop')?.addEventListener('click', closeShippingForm);
+document.getElementById('back-to-cart')?.addEventListener('click', ()=>{
+  closeShippingForm();
+  openCart();
+});
+
+// Step 1: Email -> Open Shipping Form
+document.getElementById('checkout').onclick = () => {
+  if(!state.cart.length){ toast('Your bag is empty'); return; }
+  const emailInput = document.getElementById('checkout-email');
+  const email = emailInput ? emailInput.value.trim() : '';
+  if(!email || !email.includes('@')){ toast('Enter a valid email first'); emailInput?.focus(); return; }
+  // Email confirmed -> ask for shipping details
+  openShippingForm(email);
+};
+
+// Step 2: Shipping Form -> Paystack
+document.getElementById('shipping-form').onsubmit = (e)=>{
+  e.preventDefault();
+  const fullName = document.getElementById('ship-fullname').value.trim();
+  const phone = document.getElementById('ship-phone').value.trim();
+  const address = document.getElementById('ship-address').value.trim();
+  const city = document.getElementById('ship-city').value.trim();
+  const stateVal = document.getElementById('ship-state').value;
+  const note = document.getElementById('ship-note').value.trim();
+
+  if(!fullName || !phone || !address || !city || !stateVal){
+    toast('Please fill all required shipping fields');
+    return;
+  }
+
+  const shippingData = { fullName, phone, address, city, state: stateVal, note, email: pendingOrder.email };
+  localStorage.setItem('ge_shipping', JSON.stringify(shippingData));
+  pendingOrder.shipping = shippingData;
+
+  const subtotal = pendingOrder.subtotal;
+  const reference = `GE_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
+  pendingOrder.reference = reference;
+
+  setProceedLoading(true);
+
+  const popup = new PaystackPop();
+  popup.newTransaction({
+    key: PAYSTACK_PUBLIC_KEY,
+    email: pendingOrder.email,
+    amount: Math.round(subtotal * 100),
+    currency: 'NGN',
+    ref: reference,
+    metadata: {
+      custom_fields: [
+        { display_name: "Full Name", variable_name: "full_name", value: fullName },
+        { display_name: "Phone", variable_name: "phone", value: phone },
+        { display_name: "Address", variable_name: "address", value: address },
+        { display_name: "City", variable_name: "city", value: city },
+        { display_name: "State", variable_name: "state", value: stateVal }
+      ],
+      cart: state.cart.map(ci => {
+        const p = state.products.find(x=>x.id===ci.id);
+        return { id: ci.id, name: p?p.name:'', qty: ci.qty, price: p?p.price:0 };
+      }),
+      shipping: shippingData
+    },
+    onSuccess: (response) => {
+      console.log('[Paystack] Success', response);
+      setProceedLoading(false);
+      setCheckoutLoading(true);
+      closeShippingForm();
+
+      const verifyPayload = {
+        reference: response.reference,
+        email: pendingOrder.email,
+        shipping: shippingData,
+        cart: state.cart.map(ci => {
+          const p = state.products.find(x=>x.id===ci.id);
+          return { id: ci.id, name: p?p.name:'', qty: ci.qty, price: p?p.price:0 };
+        }),
+        subtotal: pendingOrder.subtotal
+      };
+
+      // Step 1: Verify payment via Netlify function (which also sends to SheetMonkey)
+      fetch('/.netlify/functions/verify-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(verifyPayload)
+      })
+        .then(r => r.json())
+        .then(result => {
+          console.log('[Verify] Result', result);
+          setCheckoutLoading(false);
+          if(result.verified){
+            // Step 2: Also send directly from frontend as backup (SheetMonkey)
+            const orderPayload = buildSheetMonkeyPayload({
+              reference: response.reference,
+              verified: true,
+              shipping: shippingData,
+              cart: state.cart,
+              subtotal: pendingOrder.subtotal,
+              paystackData: result.data
+            });
+            sendToSheetMonkey(orderPayload);
+
+            state.cart = [];
+            save();
+            renderCart();
+            closeCart();
+            toast('Payment confirmed — order saved! 🎉');
+            setTimeout(()=>{ 
+              alert(`Thank you ${fullName}! Your order ${response.reference} is confirmed. Shipping to ${city}, ${stateVal}. Confirmation sent to ${pendingOrder.email}.`);
+            }, 500);
+          } else {
+            toast('Payment made but verification failed — contact us with ref: ' + response.reference);
+            // Still send to sheet as pending
+            const orderPayload = buildSheetMonkeyPayload({
+              reference: response.reference,
+              verified: false,
+              shipping: shippingData,
+              cart: state.cart,
+              subtotal: pendingOrder.subtotal,
+              paystackData: result.data
+            });
+            sendToSheetMonkey(orderPayload);
+          }
+        })
+        .catch((err) => {
+          console.error('[Verify] Failed', err);
+          setCheckoutLoading(false);
+          // Fallback: send directly to SheetMonkey even if verification endpoint fails
+          const orderPayload = buildSheetMonkeyPayload({
+            reference: response.reference,
+            verified: false,
+            shipping: shippingData,
+            cart: state.cart,
+            subtotal: pendingOrder.subtotal,
+            error: 'verification endpoint failed: ' + err.message
+          });
+          sendToSheetMonkey(orderPayload).then(()=>{
+            toast('Payment received! Ref: ' + response.reference + ' — we will confirm shortly.');
+          });
+          state.cart = [];
+          save();
+          renderCart();
+          closeCart();
+        });
+    },
+    onCancel: () => { 
+      setProceedLoading(false);
+      toast('Checkout cancelled'); 
+    }
+  });
+};
+
+function buildSheetMonkeyPayload({reference, verified, shipping, cart, subtotal, paystackData, error}){
+  const cartSummary = cart.map(ci=>{
+    const p = state.products.find(x=>x.id===ci.id);
+    return p ? `${p.name} x${ci.qty} (₦${p.price})` : `ID:${ci.id} x${ci.qty}`;
+  }).join('; ');
+  const now = new Date();
+  return {
+    Email: shipping.email,
+    FullName: shipping.fullName,
+    Phone: shipping.phone,
+    Address: shipping.address,
+    City: shipping.city,
+    State: shipping.state,
+    Country: 'Nigeria',
+    Note: shipping.note || '',
+    OrderSummary: cartSummary,
+    ItemsJSON: JSON.stringify(cart.map(ci=>{ const p=state.products.find(x=>x.id===ci.id); return {name:p?.name, qty:ci.qty, price:p?.price}; })),
+    Subtotal: subtotal,
+    SubtotalFormatted: NGN(subtotal),
+    PaystackReference: reference,
+    PaymentVerified: verified ? 'YES' : 'NO',
+    PaymentStatus: verified ? 'Confirmed' : 'Pending Verification',
+    PaystackResponse: paystackData ? JSON.stringify(paystackData).slice(0,1000) : (error||''),
+    OrderDate: now.toISOString(),
+    OrderDate_NG: now.toLocaleString('en-NG', {timeZone:'Africa/Lagos'}),
+    Source: 'GlowEnvy Website',
+    CreatedAt: Date.now(),
+    x_sheetmonkey_inserted_at: now.toISOString()
+  };
+}
+
+async function sendToSheetMonkey(payload){
+  if(!SHEETMONKEY_ENABLED){
+    console.log('[SheetMonkey] Disabled', payload);
+    return { ok: false, reason: 'disabled' };
+  }
+  console.log('[SheetMonkey] Sending payload:', payload);
+  try{
+    // Method 1: JSON (preferred by SheetMonkey)
+    const res = await fetch(SHEETMONKEY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const text = await res.text();
+    console.log('[SheetMonkey] JSON response:', res.status, text);
+    if(res.ok){
+      toast('Order saved for delivery ✓');
+      return { ok: true, status: res.status, body: text };
+    }
+    // If JSON failed, try form-encoded
+    console.warn('[SheetMonkey] JSON failed, trying form-encoded');
+  }catch(err){
+    console.warn('[SheetMonkey] JSON error', err);
+  }
+
+  // Method 2: Form-encoded fallback (SheetMonkey also accepts this)
+  try{
+    const formBody = new URLSearchParams();
+    Object.entries(payload).forEach(([k,v])=>{
+      formBody.append(k, String(v));
+    });
+    const res2 = await fetch(SHEETMONKEY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formBody.toString()
+    });
+    const text2 = await res2.text();
+    console.log('[SheetMonkey] Form response:', res2.status, text2);
+    if(res2.ok){
+      toast('Order saved for delivery ✓');
+      return { ok: true, status: res2.status, body: text2 };
+    }
+    toast('Could not save to sheet - contact support');
+    return { ok: false, status: res2.status, body: text2 };
+  }catch(e2){
+    console.error('[SheetMonkey] Both methods failed', e2);
+    toast('Order saved locally - we will sync your delivery details');
+    // Save locally as last resort
+    const failed = JSON.parse(localStorage.getItem('ge_failed_orders')||'[]');
+    failed.push({ payload, error: e2.message, time: new Date().toISOString() });
+    localStorage.setItem('ge_failed_orders', JSON.stringify(failed));
+    return { ok: false, error: e2.message };
+  }
+}
+
+// Debug helper - test SheetMonkey manually from console
+window.testSheetMonkey = async () => {
+  const testPayload = {
+    Email: 'test@example.com',
+    FullName: 'Test User',
+    Phone: '08012345678',
+    Address: 'Test Address',
+    City: 'Lagos',
+    State: 'Lagos',
+    Country: 'Nigeria',
+    OrderSummary: 'Test Order',
+    Subtotal: 1000,
+    PaystackReference: 'TEST_' + Date.now(),
+    PaymentVerified: 'TEST',
+    OrderDate: new Date().toISOString()
+  };
+  return await sendToSheetMonkey(testPayload);
+};
+
+
+
+// Search
+
+['search','search-mobile'].forEach(id=>{ const el=$('#'+id); if(!el) return; el.oninput = e=>{ state.search = e.target.value; state.page=1; apply(); const other = id==='search'?'search-mobile':'search'; const o=$('#'+other); if(o && o.value!==e.target.value) o.value = e.target.value; }; });
+
+// Sort
+$('#sort').onchange = e=>{ state.sort=e.target.value; apply(); };
+
+// Shop dropdown
+const shopDrop = $('#shop-dropdown'); shopDrop.innerHTML = categories.map(c=>`<button data-cat="${c}" class="w-full text-left px-3 py-2 rounded-xl hover:bg-black/5 text-[14px]">${c}</button>`).join(''); $('#shop-toggle').onclick = ()=>shopDrop.classList.toggle('hidden'); shopDrop.onclick = e=>{ const b=e.target.closest('button'); if(!b) return; state.filters.categories = new Set([b.dataset.cat]); state.page=1; apply(); shopDrop.classList.add('hidden'); document.querySelector(`#category-pills [data-cat="${b.dataset.cat}"]`)?.click(); window.scrollTo({top: $('#catalog').offsetTop-80, behavior:'smooth'}); };
+
+// Mobile filters — move (not clone) the real filters panel into the mobile
+// sheet, so its checkboxes and price slider keep the event listeners that
+// were attached to them; copying innerHTML alone would leave lifeless
+// duplicates with no click/input handlers.
+const filtersPanel = $('#filters .sticky');
+const filtersDesktopHome = $('#filters');
+const openMobileFilters = ()=>{
+  filtersPanel.classList.remove('sticky','top-[88px]','max-h-[calc(100vh-110px)]');
+  $('#mf-content').appendChild(filtersPanel);
+  $('#mobile-filters').classList.remove('hidden');
+};
+const closeMobileFilters = ()=>{
+  filtersPanel.classList.add('sticky','top-[88px]','max-h-[calc(100vh-110px)]');
+  filtersDesktopHome.appendChild(filtersPanel);
+  $('#mobile-filters').classList.add('hidden');
+};
+$('#open-filters').onclick = openMobileFilters;
+$('#mf-backdrop').onclick = closeMobileFilters;
+$('#mf-apply').onclick = closeMobileFilters;
+
+// Mobile / tablet side menu
+const openMobileMenu = ()=>{ $('#mobile-menu-drawer').classList.remove('-translate-x-full'); $('#mobile-menu-backdrop').classList.remove('hidden'); document.body.style.overflow='hidden'; };
+const closeMobileMenu = ()=>{ $('#mobile-menu-drawer').classList.add('-translate-x-full'); $('#mobile-menu-backdrop').classList.add('hidden'); document.body.style.overflow=''; };
+$('#mobile-menu').onclick = openMobileMenu;
+$('#close-mobile-menu').onclick = closeMobileMenu;
+$('#mobile-menu-backdrop').onclick = closeMobileMenu;
+const mmShopList = $('#mm-shop-list');
+mmShopList.innerHTML = categories.map(c=>`<button data-cat="${c}" class="w-full text-left py-2 px-2 rounded-xl hover:bg-black/5 text-[14px] text-[#4A453F]">${c}</button>`).join('');
+$('#mm-shop-toggle').onclick = ()=> mmShopList.classList.toggle('hidden');
+mmShopList.onclick = e=>{ const b=e.target.closest('button'); if(!b) return; state.filters.categories = new Set([b.dataset.cat]); state.page=1; apply(); closeMobileMenu(); document.querySelector(`#category-pills [data-cat="${b.dataset.cat}"]`)?.click(); window.scrollTo({top: $('#catalog').offsetTop-80, behavior:'smooth'}); };
+$('#mm-about').onclick = closeMobileMenu;
+$('#mm-quiz').onclick = ()=>{ closeMobileMenu(); openQuiz(); };
+
+// Shipping & Returns modal
+const openShipping = e=>{ if(e) e.preventDefault(); closeMobileMenu(); $('#shipping-modal').classList.remove('hidden'); document.body.style.overflow='hidden'; };
+const closeShipping = ()=>{ $('#shipping-modal').classList.add('hidden'); document.body.style.overflow=''; };
+$('#footer-shipping').onclick = openShipping;
+$('#mm-shipping').onclick = openShipping;
+$('#close-shipping').onclick = closeShipping;
+$('#shipping-backdrop').onclick = closeShipping;
+
+// Testimonials
+const testimonials = [
+  {name:'Amara O.', text:'I honestly love the difference! 😍 My skin looks brighter, more even and much more radiant than before. The dullness and uneven-looking areas have improved so much, and my skin looks healthier and smoother now.', role:'Combination skin', img:'https://res.cloudinary.com/ny0or3ln/image/upload/v1787151619/pic_va73kq.jpg'},
+  {name:'Tolu A.', text:'“My skin is naturally dry, so I’m always careful about the products I use. I started using the Caramella Set and I love how soft and moisturised my skin feels. It gave me that healthy, clear glow without leaving my skin feeling dry. I’m really impressed with the results.”', role:'Dry skin', img:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200'},
+  {name:'Zainab M.', text:'“I have combination/oily skin and I was scared of using products that would make me too oily. I tried the 3D Glow Black Soap and Bright Boost Glow Serum, and I really love how my skin looks. My skin feels cleaner, brighter and more even, without that heavy feeling.', role:'Oily/Combination Skin', img:'https://images.unsplash.com/photo-1526510747491-58f928ec870f?w=200'},
+  {name:'Bose E.', text:'“I used the Fruity Glow Body Oil with the 3D Glow Black Soap, and honestly, my skin has been glowing! 😍 My skin looks brighter, smoother and more radiant. I love that the products work so well together, and I’m really happy with my results.”', role:'Normal skin', img:'https://res.cloudinary.com/ny0or3ln/image/upload/v1787264856/6c46c872-4dd1-446e-8574-b8738c39f617_jnssq4.jpg'}
+];
+function renderTestimonials(){ const track=$('#test-track'); track.innerHTML = testimonials.map(t=>`<div class="min-w-full md:min-w-[48%] lg:min-w-[32%] p-3"><div class="h-full bg-white rounded-[24px] border border-black/5 p-6 shadow-soft"><div class="flex items-center gap-3"><img src="${t.img}" class="w-11 h-11 rounded-full object-cover"><div><p class="font-medium leading-tight">${t.name}</p><p class="text-[12px] text-[#6B625C]">${t.role}</p></div></div><p class="mt-4 text-[15px] leading-relaxed">“${t.text}”</p><div class="mt-3 text-[#C8A96A]">★★★★★</div></div></div>`).join(''); }
+let testIndex=0; function slideTest(dir){ const track=$('#test-track'); const max = testimonials.length-1; testIndex = Math.max(0, Math.min(max, testIndex+dir)); const w = track.firstElementChild.offsetWidth + 24; track.style.transform = `translateX(-${testIndex * w}px)`; }
+$('#test-prev').onclick = ()=>slideTest(-1); $('#test-next').onclick = ()=>slideTest(1);
+
+// Quiz
+const quizData = [
+  {q:'What’s your skin type?', k:'skin', a:[['oily','Oily / shiny by noon'],['dry','Dry / tight'],['combination','Combination'],['sensitive','Sensitive / easily irritated']]},
+  {q:'Main concern right now?', k:'concern', a:[['acne','Acne & blemishes'],['dullness','Dullness / dark spots'],['dryness','Dryness / barrier'],['aging','Fine lines'],['sensitivity','Redness']]},
+  {q:'Routine preference?', k:'routine', a:[['minimal','Minimal (3 steps)'],['moderate','Moderate (4-5)'],['full','Full routine']]}
+];
+let quizStep=0, answers={};
+function renderQuiz(){ const wrap=$('#quiz-steps'); if(quizStep>=quizData.length){ const rec = recommend(); wrap.innerHTML = `<div class="animate-in"><h4 class="serif text-[22px]">Your GlowEnvy routine</h4><p class="text-[14px] text-[#6B625C] mt-1">Picked for ${answers.skin} skin, targeting ${answers.concern}.</p><div class="mt-4 space-y-3">${rec.map(p=>`<div class="flex gap-3 items-center p-3 border border-black/5 rounded-2xl"><img src="${p.image}" class="w-14 h-14 rounded-xl object-cover"><div class="flex-1 min-w-0"><p class="text-[12px] uppercase tracking-widest text-[#7A9277]">${p.category}</p><p class="font-medium leading-tight truncate">${p.name}</p></div><span class="text-[14px]">${NGN(p.price)}</span><button data-add-rec="${p.id}" class="ml-2 w-8 h-8 grid place-items-center rounded-full bg-[#2D2A26] text-white">+</button></div>`).join('')}</div><button id="quiz-restart" class="mt-5 text-[13px] underline">Retake quiz</button></div>`; wrap.querySelectorAll('[data-add-rec]').forEach(b=>b.onclick=()=>addToCart(+b.dataset.addRec,1)); $('#quiz-restart').onclick=()=>{ quizStep=0; answers={}; renderQuiz(); }; return; }
+  const step = quizData[quizStep]; wrap.innerHTML = `<p class="text-[13px] text-[#6B625C]">Step ${quizStep+1} of 3</p><h4 class="text-[18px] font-medium mt-1">${step.q}</h4><div class="mt-4 grid gap-2">${step.a.map(([v,l])=>`<button data-v="${v}" class="text-left px-4 h-12 rounded-2xl border border-black/10 hover:bg-[#FDEBF0]/50">${l}</button>`).join('')}</div>`; wrap.querySelectorAll('button[data-v]').forEach(b=>b.onclick=()=>{ answers[step.k]=b.dataset.v; quizStep++; renderQuiz(); }); }
+function recommend(){ const map={acne:'Salicylic Acid', dullness:'Vitamin C', dryness:'Hyaluronic Acid', aging:'Retinol', sensitivity:'Centella'}; const ing = map[answers.concern]||'Niacinamide'; const pickType = (kws, filterFn) => { const pool = state.products.filter(p=> kws.some(k=>p.name.toLowerCase().includes(k))); return pool.filter(p=>p.skinTypes.includes(answers.skin)).find(filterFn) || pool.find(filterFn) || pool[0]; }; const cleanser = pickType(['cleanser','wash'], p=>p.name.includes('Gel')); const serum = pickType(['serum'], p=>p.name.toLowerCase().includes(ing.split(' ')[0].toLowerCase())); const moisturizer = pickType(['cream','moistur','lotion'], ()=>true); const spfPool = state.products.filter(p=> /spf|sunscreen|sun\s?protection/i.test(p.name) || p.category==='Sun Protection'); const spf = spfPool.find(p=>p.skinTypes.includes(answers.skin)) || spfPool[0]; const list=[cleanser, serum, moisturizer]; if(answers.routine!=='minimal') list.push(spf); return list.filter(Boolean).slice(0,4); }
+function openQuiz(){ $('#quiz-modal').classList.remove('hidden'); quizStep=0; answers={}; renderQuiz(); }
+function closeQuiz(){ $('#quiz-modal').classList.add('hidden'); }
+$('#quiz-hero').onclick = openQuiz; $('#quiz-header').onclick = openQuiz; $('#close-quiz').onclick = closeQuiz;
+
+// Newsletter
+$('#newsletter').onsubmit = e=>{ e.preventDefault(); const email = e.target.querySelector('input').value; localStorage.setItem('ge_news', email); $('#news-msg').classList.remove('hidden'); e.target.reset(); };
+
+// Init
+function init(){ renderPills(); renderFilterOptions(); renderTestimonials(); updateCounts(); apply(); }
+init();
+
+// Close dropdowns on outside click
+document.addEventListener('click', e=>{ if(!e.target.closest('#shop-toggle') && !e.target.closest('#shop-dropdown')) shopDrop.classList.add('hidden'); });
+</script>
+<script>(function(){document.addEventListener("click",function(e){var a=e.target.closest("[data-product-id]");if(!a)return;e.preventDefault();var pid=a.getAttribute("data-product-id");if(pid)parent.postMessage({type:"ecto-artifact-link-click",productId:pid},"*")})})();</script>
+</body>
+</html>
