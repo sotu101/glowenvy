@@ -1,0 +1,6 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+# Every route falls through to the static files as-is — this site has no
+# build step, index.html/admin.html/products.js are served directly.
