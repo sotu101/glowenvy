@@ -308,6 +308,74 @@
         </div>
     </aside>
 
+    <!-- Shipping Details Modal - Email confirmed -> Shipping -> Paystack -> SheetMonkey -->
+    <div id="shipping-details-modal" class="fixed inset-0 z-[80] hidden">
+        <div id="shipping-form-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+        <div class="relative z-10 max-w-[560px] mx-auto my-6 md:my-10 bg-[#FFFAF6] rounded-[28px] shadow-2xl max-h-[92vh] overflow-hidden flex flex-col">
+            <div class="p-6 md:p-8 border-b border-black/5 shrink-0">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <h3 class="serif text-[26px] leading-tight">Shipping Details</h3>
+                        <p class="text-[13px] text-[#6B625C] mt-1.5">Email confirmed ✓ — where should we deliver your glow?</p>
+                        <div class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 bg-[#E8EDE7] rounded-full text-[12px] font-medium">
+                            <span class="w-1.5 h-1.5 bg-[#7A9277] rounded-full"></span>
+                            <span id="confirmed-email-display">email@example.com</span>
+                        </div>
+                    </div>
+                    <button id="close-shipping-form" class="w-9 h-9 grid place-items-center rounded-full hover:bg-black/5 shrink-0">✕</button>
+                </div>
+            </div>
+            <form id="shipping-form" class="flex-1 overflow-auto p-6 md:p-8 space-y-4">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="text-[13px] font-medium">Full Name *</label>
+                        <input id="ship-fullname" name="fullName" required type="text" placeholder="Ivy Adeyemi" class="mt-1.5 w-full h-11 px-4 bg-white border border-black/10 rounded-full text-[14px] focus:outline-none focus:ring-2 focus:ring-[#E8EDE7] focus:border-[#7A9277]">
+                    </div>
+                    <div>
+                        <label class="text-[13px] font-medium">Phone Number *</label>
+                        <input id="ship-phone" name="phone" required type="tel" placeholder="0801 234 5678" class="mt-1.5 w-full h-11 px-4 bg-white border border-black/10 rounded-full text-[14px] focus:outline-none focus:ring-2 focus:ring-[#E8EDE7]">
+                    </div>
+                    <div>
+                        <label class="text-[13px] font-medium">City *</label>
+                        <input id="ship-city" name="city" required type="text" placeholder="Lagos" class="mt-1.5 w-full h-11 px-4 bg-white border border-black/10 rounded-full text-[14px] focus:outline-none focus:ring-2 focus:ring-[#E8EDE7]">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="text-[13px] font-medium">Delivery Address *</label>
+                        <textarea id="ship-address" name="address" required rows="2" placeholder="Street, house number, landmark" class="mt-1.5 w-full px-4 py-3 bg-white border border-black/10 rounded-[20px] text-[14px] focus:outline-none focus:ring-2 focus:ring-[#E8EDE7] resize-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="text-[13px] font-medium">State *</label>
+                        <select id="ship-state" name="state" required class="mt-1.5 w-full h-11 px-4 bg-white border border-black/10 rounded-full text-[14px] focus:outline-none focus:ring-2 focus:ring-[#E8EDE7]">
+                            <option value="">Select state</option>
+                            <option>Abia</option><option>Adamawa</option><option>Akwa Ibom</option><option>Anambra</option><option>Bauchi</option><option>Bayelsa</option><option>Benue</option><option>Borno</option><option>Cross River</option><option>Delta</option><option>Ebonyi</option><option>Edo</option><option>Ekiti</option><option>Enugu</option><option>FCT - Abuja</option><option>Gombe</option><option>Imo</option><option>Jigawa</option><option>Kaduna</option><option>Kano</option><option>Katsina</option><option>Kebbi</option><option>Kogi</option><option>Kwara</option><option>Lagos</option><option>Nasarawa</option><option>Niger</option><option>Ogun</option><option>Ondo</option><option>Osun</option><option>Oyo</option><option>Plateau</option><option>Rivers</option><option>Sokoto</option><option>Taraba</option><option>Yobe</option><option>Zamfara</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[13px] font-medium">Country</label>
+                        <input value="Nigeria" disabled class="mt-1.5 w-full h-11 px-4 bg-[#F5F0EB] border border-black/5 rounded-full text-[14px] text-[#6B625C]">
+                    </div>
+                </div>
+                <div class="pt-2">
+                    <label class="text-[13px] font-medium">Delivery Note (optional)</label>
+                    <input id="ship-note" name="note" type="text" placeholder="e.g. Leave with security, call before delivery" class="mt-1.5 w-full h-11 px-4 bg-white border border-black/10 rounded-full text-[14px] focus:outline-none focus:ring-2 focus:ring-[#E8EDE7]">
+                </div>
+                <div class="bg-[#FDEBF0]/60 border border-[#F5D6DF] rounded-2xl p-3.5 flex gap-2.5 mt-2">
+                    <span class="text-[13px]">🔒</span>
+                    <p class="text-[12px] leading-relaxed text-[#6B625C]">Your details are secure. After payment is confirmed, we automatically save your order to our fulfillment sheet via SheetMonkey so Ivy's team can ship ASAP.</p>
+                </div>
+                <div class="pt-4 space-y-2.5">
+                    <button type="submit" id="proceed-paystack" class="w-full h-12 bg-[#2D2A26] text-white rounded-full font-medium hover:opacity-90 flex items-center justify-center gap-2">
+                        <span id="proceed-label">Proceed to Pay — ₦0</span>
+                        <svg id="proceed-spinner" class="hidden animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="9" stroke-opacity=".25"/><path d="M21 12a9 9 0 0 0-9-9"/></svg>
+                    </button>
+                    <button type="button" id="back-to-cart" class="w-full h-11 text-[14px] hover:underline">← Back to Bag</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
     <!-- Mobile / Tablet Side Menu -->
     <div id="mobile-menu-backdrop" class="fixed inset-0 bg-black/40 z-50 hidden lg:hidden"></div>
     <aside id="mobile-menu-drawer" class="fixed top-0 left-0 h-full w-full max-w-[300px] bg-[#FFFAF6] z-50 -translate-x-full transition-transform duration-300 shadow-2xl flex flex-col lg:hidden">
@@ -600,70 +668,334 @@ $('#modal-add').onclick = ()=>{ addToCart(modalProduct.id, modalQty); closeModal
 const openCart = ()=>{ $('#cart-drawer').classList.remove('translate-x-full'); $('#cart-backdrop').classList.remove('hidden'); renderCart(); };
 const closeCart = ()=>{ $('#cart-drawer').classList.add('translate-x-full'); $('#cart-backdrop').classList.add('hidden'); };
 $('#cart-btn').onclick = openCart; $('#close-cart').onclick = closeCart; $('#cart-backdrop').onclick = closeCart; $('#keep-shopping').onclick = closeCart;
-// Paystack checkout
-// Paystack public key - test mode
-// This is the PUBLIC key only — safe to expose in frontend code. Never put the secret key here.
+// Paystack + Shipping + SheetMonkey Flow - FIXED VERSION
+// Paystack public key - test mode (safe for frontend)
+const PAYSTACK_PUBLIC_KEY = 'pk_test_f8c3f14945cf6def52c13c8af292a303b6aff39f';
+
+// SheetMonkey Configuration - Your designated spreadsheet
 const SHEETMONKEY_URL = 'https://api.sheetmonkey.io/form/nwzBDuKWDpHMDroZQDqnRc';
 const SHEETMONKEY_ENABLED = true;
 
-const PAYSTACK_PUBLIC_KEY = 'pk_test_f8c3f14945cf6def52c13c8af292a303b6aff39f';
+console.log('[GlowEnvy] SheetMonkey URL:', SHEETMONKEY_URL);
 
 function setCheckoutLoading(loading){
-  $('#checkout').disabled = loading;
-  $('#checkout-label').textContent = loading ? 'Verifying payment…' : 'Pay with Paystack';
-  $('#checkout-spinner').classList.toggle('hidden', !loading);
+  const btn = document.getElementById('checkout');
+  const label = document.getElementById('checkout-label');
+  const spinner = document.getElementById('checkout-spinner');
+  if(btn) btn.disabled = loading;
+  if(label) label.textContent = loading ? 'Verifying payment…' : 'Continue to Shipping';
+  if(spinner) spinner.classList.toggle('hidden', !loading);
+}
+function setProceedLoading(loading){
+  const btn = document.getElementById('proceed-paystack');
+  const label = document.getElementById('proceed-label');
+  const spinner = document.getElementById('proceed-spinner');
+  if(btn) btn.disabled = loading;
+  if(spinner) spinner.classList.toggle('hidden', !loading);
+  if(loading && label) label.textContent = 'Opening Paystack…';
 }
 
-$('#checkout').onclick = () => {
-  if(!state.cart.length){ toast('Your bag is empty'); return; }
-  const email = $('#checkout-email').value.trim();
-  if(!email || !email.includes('@')){ toast('Enter a valid email first'); $('#checkout-email').focus(); return; }
+let pendingOrder = {
+  email: '',
+  subtotal: 0,
+  reference: '',
+  shipping: null
+};
 
-  const subtotal = state.cart.reduce((s,ci)=>{ const p=state.products.find(x=>x.id===ci.id); return s + p.price*ci.qty; },0);
+function openShippingForm(email){
+  pendingOrder.email = email;
+  const subtotal = state.cart.reduce((s,ci)=>{ const p=state.products.find(x=>x.id===ci.id); return s + (p?p.price*ci.qty:0); },0);
+  pendingOrder.subtotal = subtotal;
+  const emailDisplay = document.getElementById('confirmed-email-display');
+  const proceedLabel = document.getElementById('proceed-label');
+  if(emailDisplay) emailDisplay.textContent = email;
+  if(proceedLabel) proceedLabel.textContent = `Proceed to Pay — ${NGN(subtotal)}`;
+
+  // Restore saved shipping if exists
+  try{
+    const saved = JSON.parse(localStorage.getItem('ge_shipping')||'{}');
+    if(saved.fullName) document.getElementById('ship-fullname').value = saved.fullName;
+    if(saved.phone) document.getElementById('ship-phone').value = saved.phone;
+    if(saved.address) document.getElementById('ship-address').value = saved.address;
+    if(saved.city) document.getElementById('ship-city').value = saved.city;
+    if(saved.state) document.getElementById('ship-state').value = saved.state;
+    if(saved.note) document.getElementById('ship-note').value = saved.note;
+  }catch(e){}
+
+  document.getElementById('shipping-details-modal').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+}
+
+function closeShippingForm(){
+  document.getElementById('shipping-details-modal').classList.add('hidden');
+  // Keep body locked if cart is open, otherwise unlock
+  const cartDrawer = document.getElementById('cart-drawer');
+  if(cartDrawer && cartDrawer.classList.contains('translate-x-full')){
+    document.body.style.overflow='';
+  }
+}
+
+document.getElementById('close-shipping-form')?.addEventListener('click', closeShippingForm);
+document.getElementById('shipping-form-backdrop')?.addEventListener('click', closeShippingForm);
+document.getElementById('back-to-cart')?.addEventListener('click', ()=>{
+  closeShippingForm();
+  openCart();
+});
+
+// Step 1: Email -> Open Shipping Form
+document.getElementById('checkout').onclick = () => {
+  if(!state.cart.length){ toast('Your bag is empty'); return; }
+  const emailInput = document.getElementById('checkout-email');
+  const email = emailInput ? emailInput.value.trim() : '';
+  if(!email || !email.includes('@')){ toast('Enter a valid email first'); emailInput?.focus(); return; }
+  // Email confirmed -> ask for shipping details
+  openShippingForm(email);
+};
+
+// Step 2: Shipping Form -> Paystack
+document.getElementById('shipping-form').onsubmit = (e)=>{
+  e.preventDefault();
+  const fullName = document.getElementById('ship-fullname').value.trim();
+  const phone = document.getElementById('ship-phone').value.trim();
+  const address = document.getElementById('ship-address').value.trim();
+  const city = document.getElementById('ship-city').value.trim();
+  const stateVal = document.getElementById('ship-state').value;
+  const note = document.getElementById('ship-note').value.trim();
+
+  if(!fullName || !phone || !address || !city || !stateVal){
+    toast('Please fill all required shipping fields');
+    return;
+  }
+
+  const shippingData = { fullName, phone, address, city, state: stateVal, note, email: pendingOrder.email };
+  localStorage.setItem('ge_shipping', JSON.stringify(shippingData));
+  pendingOrder.shipping = shippingData;
+
+  const subtotal = pendingOrder.subtotal;
   const reference = `GE_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
+  pendingOrder.reference = reference;
+
+  setProceedLoading(true);
 
   const popup = new PaystackPop();
   popup.newTransaction({
     key: PAYSTACK_PUBLIC_KEY,
-    email,
-    amount: Math.round(subtotal * 100), // Paystack expects kobo, not naira
+    email: pendingOrder.email,
+    amount: Math.round(subtotal * 100),
     currency: 'NGN',
     ref: reference,
     metadata: {
-      cart: state.cart.map(ci => ({ id: ci.id, qty: ci.qty }))
+      custom_fields: [
+        { display_name: "Full Name", variable_name: "full_name", value: fullName },
+        { display_name: "Phone", variable_name: "phone", value: phone },
+        { display_name: "Address", variable_name: "address", value: address },
+        { display_name: "City", variable_name: "city", value: city },
+        { display_name: "State", variable_name: "state", value: stateVal }
+      ],
+      cart: state.cart.map(ci => {
+        const p = state.products.find(x=>x.id===ci.id);
+        return { id: ci.id, name: p?p.name:'', qty: ci.qty, price: p?p.price:0 };
+      }),
+      shipping: shippingData
     },
     onSuccess: (response) => {
+      console.log('[Paystack] Success', response);
+      setProceedLoading(false);
       setCheckoutLoading(true);
-      // The popup reporting success is NOT proof of payment on its own — always
-      // confirm with your server, which asks Paystack directly using the secret key.
+      closeShippingForm();
+
+      const verifyPayload = {
+        reference: response.reference,
+        email: pendingOrder.email,
+        shipping: shippingData,
+        cart: state.cart.map(ci => {
+          const p = state.products.find(x=>x.id===ci.id);
+          return { id: ci.id, name: p?p.name:'', qty: ci.qty, price: p?p.price:0 };
+        }),
+        subtotal: pendingOrder.subtotal
+      };
+
+      // Step 1: Verify payment via Netlify function (which also sends to SheetMonkey)
       fetch('/.netlify/functions/verify-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reference: response.reference })
+        body: JSON.stringify(verifyPayload)
       })
         .then(r => r.json())
         .then(result => {
+          console.log('[Verify] Result', result);
           setCheckoutLoading(false);
           if(result.verified){
+            // Step 2: Also send directly from frontend as backup (SheetMonkey)
+            const orderPayload = buildSheetMonkeyPayload({
+              reference: response.reference,
+              verified: true,
+              shipping: shippingData,
+              cart: state.cart,
+              subtotal: pendingOrder.subtotal,
+              paystackData: result.data
+            });
+            sendToSheetMonkey(orderPayload);
+
             state.cart = [];
             save();
             renderCart();
             closeCart();
-            toast('Payment confirmed — thank you!');
+            toast('Payment confirmed — order saved! 🎉');
+            setTimeout(()=>{ 
+              alert(`Thank you ${fullName}! Your order ${response.reference} is confirmed. Shipping to ${city}, ${stateVal}. Confirmation sent to ${pendingOrder.email}.`);
+            }, 500);
           } else {
-            toast('We could not confirm that payment — please contact us with reference ' + response.reference);
+            toast('Payment made but verification failed — contact us with ref: ' + response.reference);
+            // Still send to sheet as pending
+            const orderPayload = buildSheetMonkeyPayload({
+              reference: response.reference,
+              verified: false,
+              shipping: shippingData,
+              cart: state.cart,
+              subtotal: pendingOrder.subtotal,
+              paystackData: result.data
+            });
+            sendToSheetMonkey(orderPayload);
           }
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error('[Verify] Failed', err);
           setCheckoutLoading(false);
-          toast('Payment made, but we could not confirm it automatically. Reference: ' + response.reference);
+          // Fallback: send directly to SheetMonkey even if verification endpoint fails
+          const orderPayload = buildSheetMonkeyPayload({
+            reference: response.reference,
+            verified: false,
+            shipping: shippingData,
+            cart: state.cart,
+            subtotal: pendingOrder.subtotal,
+            error: 'verification endpoint failed: ' + err.message
+          });
+          sendToSheetMonkey(orderPayload).then(()=>{
+            toast('Payment received! Ref: ' + response.reference + ' — we will confirm shortly.');
+          });
+          state.cart = [];
+          save();
+          renderCart();
+          closeCart();
         });
     },
-    onCancel: () => { toast('Checkout cancelled'); }
+    onCancel: () => { 
+      setProceedLoading(false);
+      toast('Checkout cancelled'); 
+    }
   });
 };
 
+function buildSheetMonkeyPayload({reference, verified, shipping, cart, subtotal, paystackData, error}){
+  const cartSummary = cart.map(ci=>{
+    const p = state.products.find(x=>x.id===ci.id);
+    return p ? `${p.name} x${ci.qty} (₦${p.price})` : `ID:${ci.id} x${ci.qty}`;
+  }).join('; ');
+  const now = new Date();
+  return {
+    Email: shipping.email,
+    FullName: shipping.fullName,
+    Phone: shipping.phone,
+    Address: shipping.address,
+    City: shipping.city,
+    State: shipping.state,
+    Country: 'Nigeria',
+    Note: shipping.note || '',
+    OrderSummary: cartSummary,
+    ItemsJSON: JSON.stringify(cart.map(ci=>{ const p=state.products.find(x=>x.id===ci.id); return {name:p?.name, qty:ci.qty, price:p?.price}; })),
+    Subtotal: subtotal,
+    SubtotalFormatted: NGN(subtotal),
+    PaystackReference: reference,
+    PaymentVerified: verified ? 'YES' : 'NO',
+    PaymentStatus: verified ? 'Confirmed' : 'Pending Verification',
+    PaystackResponse: paystackData ? JSON.stringify(paystackData).slice(0,1000) : (error||''),
+    OrderDate: now.toISOString(),
+    OrderDate_NG: now.toLocaleString('en-NG', {timeZone:'Africa/Lagos'}),
+    Source: 'GlowEnvy Website',
+    CreatedAt: Date.now(),
+    x_sheetmonkey_inserted_at: now.toISOString()
+  };
+}
+
+async function sendToSheetMonkey(payload){
+  if(!SHEETMONKEY_ENABLED){
+    console.log('[SheetMonkey] Disabled', payload);
+    return { ok: false, reason: 'disabled' };
+  }
+  console.log('[SheetMonkey] Sending payload:', payload);
+  try{
+    // Method 1: JSON (preferred by SheetMonkey)
+    const res = await fetch(SHEETMONKEY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const text = await res.text();
+    console.log('[SheetMonkey] JSON response:', res.status, text);
+    if(res.ok){
+      toast('Order saved for delivery ✓');
+      return { ok: true, status: res.status, body: text };
+    }
+    // If JSON failed, try form-encoded
+    console.warn('[SheetMonkey] JSON failed, trying form-encoded');
+  }catch(err){
+    console.warn('[SheetMonkey] JSON error', err);
+  }
+
+  // Method 2: Form-encoded fallback (SheetMonkey also accepts this)
+  try{
+    const formBody = new URLSearchParams();
+    Object.entries(payload).forEach(([k,v])=>{
+      formBody.append(k, String(v));
+    });
+    const res2 = await fetch(SHEETMONKEY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formBody.toString()
+    });
+    const text2 = await res2.text();
+    console.log('[SheetMonkey] Form response:', res2.status, text2);
+    if(res2.ok){
+      toast('Order saved for delivery ✓');
+      return { ok: true, status: res2.status, body: text2 };
+    }
+    toast('Could not save to sheet - contact support');
+    return { ok: false, status: res2.status, body: text2 };
+  }catch(e2){
+    console.error('[SheetMonkey] Both methods failed', e2);
+    toast('Order saved locally - we will sync your delivery details');
+    // Save locally as last resort
+    const failed = JSON.parse(localStorage.getItem('ge_failed_orders')||'[]');
+    failed.push({ payload, error: e2.message, time: new Date().toISOString() });
+    localStorage.setItem('ge_failed_orders', JSON.stringify(failed));
+    return { ok: false, error: e2.message };
+  }
+}
+
+// Debug helper - test SheetMonkey manually from console
+window.testSheetMonkey = async () => {
+  const testPayload = {
+    Email: 'test@example.com',
+    FullName: 'Test User',
+    Phone: '08012345678',
+    Address: 'Test Address',
+    City: 'Lagos',
+    State: 'Lagos',
+    Country: 'Nigeria',
+    OrderSummary: 'Test Order',
+    Subtotal: 1000,
+    PaystackReference: 'TEST_' + Date.now(),
+    PaymentVerified: 'TEST',
+    OrderDate: new Date().toISOString()
+  };
+  return await sendToSheetMonkey(testPayload);
+};
+
+
+
 // Search
+
 ['search','search-mobile'].forEach(id=>{ const el=$('#'+id); if(!el) return; el.oninput = e=>{ state.search = e.target.value; state.page=1; apply(); const other = id==='search'?'search-mobile':'search'; const o=$('#'+other); if(o && o.value!==e.target.value) o.value = e.target.value; }; });
 
 // Sort

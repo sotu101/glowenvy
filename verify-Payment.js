@@ -140,17 +140,45 @@ function buildSheetPayload({ reference, email, shipping, cart, subtotal, paystac
 }
 
 async function sendToSheetMonkey(url, payload) {
+  // SheetMonkey is picky - try JSON first, then form-encoded
+  console.log('[SheetMonkey] Attempting to send to', url);
+  console.log('[SheetMonkey] Payload:', JSON.stringify(payload).slice(0, 500));
+
+  // Try 1: JSON
   try {
-    // SheetMonkey accepts JSON
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
     const text = await res.text();
-    return { ok: res.ok, status: res.status, body: text.slice(0, 500) };
+    console.log('[SheetMonkey] JSON attempt - Status:', res.status, 'Body:', text.slice(0, 500));
+    if (res.ok) {
+      return { ok: true, status: res.status, body: text.slice(0, 500), method: 'json' };
+    }
   } catch (e) {
-    console.error('SheetMonkey send failed', e);
-    return { ok: false, error: e.message };
+    console.error('[SheetMonkey] JSON attempt failed', e.message);
+  }
+
+  // Try 2: Form-encoded (many SheetMonkey forms prefer this)
+  try {
+    const params = new URLSearchParams();
+    Object.entries(payload).forEach(([k, v]) => {
+      // SheetMonkey likes string values
+      if (v !== undefined && v !== null) {
+        params.append(k, String(v));
+      }
+    });
+    const res2 = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString()
+    });
+    const text2 = await res2.text();
+    console.log('[SheetMonkey] Form attempt - Status:', res2.status, 'Body:', text2.slice(0, 500));
+    return { ok: res2.ok, status: res2.status, body: text2.slice(0, 500), method: 'form' };
+  } catch (e2) {
+    console.error('[SheetMonkey] Form attempt failed', e2.message);
+    return { ok: false, error: e2.message };
   }
 }
