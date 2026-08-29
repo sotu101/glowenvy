@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Not Completed — GlowEnvy by Ivy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --blush: #FDEBF0;
+            --blush-dark: #F5D6DF;
+            --ivory: #FFFAF6;
+            --sage: #7A9277;
+            --sage-light: #E8EDE7;
+            --gold: #C8A96A;
+            --ink: #2D2A26;
+            --ink-60: #6B625C;
+            --rose: #C8355B;
+        }
+        * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body { font-family: 'Inter', sans-serif; background: var(--ivory); color: var(--ink); }
+        h1, h2, h3, .serif { font-family: 'Playfair Display', serif; }
+        .glass { background: rgba(255,250,246,0.85); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+        .shadow-soft { box-shadow: 0 10px 30px rgba(45,42,38,0.06); }
+        .animate-in { animation: in .5s ease-out; } @keyframes in { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }
+        .pop-in { animation: pop .5s cubic-bezier(.34,1.56,.64,1) .1s both; } @keyframes pop { from { opacity:0; transform: scale(.7);} to { opacity:1; transform: scale(1);} }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="sticky top-0 z-40 glass border-b border-black/5">
+        <div class="max-w-[1400px] mx-auto px-4 md:px-8">
+            <div class="flex items-center h-[68px]">
+                <a href="index.html" class="flex items-center gap-1">
+                    <span class="serif text-[26px] leading-none tracking-tight">GlowEnvy</span>
+                    <span class="text-[11px] uppercase tracking-[0.18em] text-[#6B625C] mt-1">by Ivy</span>
+                </a>
+                <a href="index.html" class="ml-auto text-[13px] font-medium hover:text-[#7A9277] flex items-center gap-1.5">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M10 3.5L4.5 8l5.5 4.5M5 8h9.5"/></svg>
+                    Back to store
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[640px] mx-auto px-4 md:px-8 py-14 md:py-20">
+        <div class="bg-white rounded-[28px] border border-black/5 shadow-soft p-7 md:p-11 text-center animate-in">
+            <div id="icon-wrap" class="w-20 h-20 mx-auto rounded-full bg-[#FDEBF0] grid place-items-center pop-in">
+                <svg width="32" height="32" fill="none" stroke="#C8355B" stroke-width="2.5" stroke-linecap="round"><path d="M8 8l16 16M24 8L8 24"/></svg>
+            </div>
+            <h1 id="heading" class="serif text-[30px] md:text-[38px] leading-tight mt-6">Payment Not Completed</h1>
+            <p id="message" class="text-[#6B625C] mt-3 text-[15.5px] leading-relaxed max-w-[460px] mx-auto"></p>
+
+            <div id="bag-note" class="hidden mt-5 text-left bg-[#E8EDE7] border border-black/5 rounded-2xl p-4 flex gap-2.5">
+                <span class="text-[15px] leading-none mt-0.5">🛍️</span>
+                <p id="bag-note-text" class="text-[13px] leading-relaxed text-[#4A453F]"></p>
+            </div>
+
+            <div id="ref-box" class="hidden mt-6 bg-[#FFFAF6] rounded-2xl border border-black/5 p-4 flex items-center justify-between gap-3 text-[13.5px]">
+                <span class="text-[#6B625C]">Reference</span>
+                <span id="ref-value" class="font-medium">—</span>
+            </div>
+
+            <div class="mt-8 flex flex-col sm:flex-row gap-3">
+                <a id="primary-btn" href="index.html" class="flex-1 h-12 grid place-items-center bg-[#2D2A26] text-white rounded-full font-medium hover:opacity-90 transition">Try Again</a>
+                <a id="secondary-btn" href="https://wa.me/message/KIDR3IIWU4QNJ1" target="_blank" rel="noopener" class="flex-1 h-12 grid place-items-center bg-white border border-black/10 rounded-full font-medium hover:bg-black/5 transition">Message us on WhatsApp</a>
+            </div>
+        </div>
+
+        <p class="text-center text-[13px] text-[#6B625C] mt-6">Prefer email? Write to <a href="mailto:Helloglowenvyivy@gmail.com" class="text-[#7A9277] hover:underline">Helloglowenvyivy@gmail.com</a> and include your reference if you have one.</p>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#2D2A26] text-[#E8DDD2] mt-10">
+        <div class="max-w-[1400px] mx-auto px-4 md:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+            <div class="flex items-baseline gap-1"><span class="serif text-[22px] text-white">GlowEnvy</span><span class="text-[11px] uppercase tracking-[0.18em]">by Ivy</span></div>
+            <p class="text-[12px] text-[#9A8F88]">© 2025 GlowEnvy by Ivy · Lagos, Nigeria</p>
+        </div>
+    </footer>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const ref = params.get('ref') || '';
+        const email = params.get('email') || '';
+        const itemsCount = params.get('items');
+        const reason = params.get('reason') || 'cancelled';
+
+        const bagNoteText = itemsCount && Number(itemsCount) > 0
+            ? `Good news — nothing was charged, and your bag is still saved with ${itemsCount} item${itemsCount==='1'?'':'s'}. Just head back to the store to pick up where you left off.`
+            : `Good news — nothing was charged. Your bag is still saved, so you can pick up right where you left off.`;
+
+        const reasons = {
+            cancelled: {
+                icon: 'x', tone: 'rose',
+                heading: 'Payment Not Completed',
+                message: 'Checkout was closed before the payment finished. This usually just means the popup was dismissed — no charge was made.',
+                showBagNote: true,
+                primaryLabel: 'Try Again', primaryHref: 'index.html',
+                secondaryLabel: 'Message us on WhatsApp'
+            },
+            declined: {
+                icon: 'x', tone: 'rose',
+                heading: 'Payment Declined',
+                message: 'Your bank or card issuer declined this transaction. This is usually about insufficient funds, a spending limit, or a security block on the card — try a different card, or contact your bank first.',
+                showBagNote: true,
+                primaryLabel: 'Try Again', primaryHref: 'index.html',
+                secondaryLabel: 'Message us on WhatsApp'
+            },
+            unverified: {
+                icon: 'alert', tone: 'gold',
+                heading: "We Couldn't Confirm Your Payment",
+                message: "Your payment may have gone through, but we weren't able to verify it automatically. Please don't try paying again yet — message us with your reference below and our team will confirm manually within a few hours.",
+                showBagNote: false,
+                primaryLabel: 'Message us on WhatsApp', primaryHref: '__whatsapp__',
+                secondaryLabel: 'Return to Store', secondaryHref: 'index.html'
+            },
+            error: {
+                icon: 'alert', tone: 'gold',
+                heading: 'Something Went Wrong',
+                message: "We ran into a technical hiccup while processing checkout. If you were charged, message us with your reference below and we'll sort it out right away; if not, no charge was made and you're welcome to try again.",
+                showBagNote: true,
+                primaryLabel: 'Try Again', primaryHref: 'index.html',
+                secondaryLabel: 'Message us on WhatsApp'
+            }
+        };
+
+        const cfg = reasons[reason] || reasons.cancelled;
+
+        document.getElementById('heading').textContent = cfg.heading;
+        document.getElementById('message').textContent = cfg.message;
+        document.title = cfg.heading + ' — GlowEnvy by Ivy';
+
+        if(cfg.tone === 'gold'){
+            const iconWrap = document.getElementById('icon-wrap');
+            iconWrap.style.background = '#F5EFE2';
+            iconWrap.querySelector('svg').outerHTML = '<svg width="30" height="30" fill="none" stroke="#C8A96A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="15" cy="15" r="12.5"/><path d="M15 9v7"/><circle cx="15" cy="20.5" r=".2" fill="#C8A96A"/></svg>';
+        }
+
+        if(cfg.showBagNote){
+            document.getElementById('bag-note').classList.remove('hidden');
+            document.getElementById('bag-note-text').textContent = bagNoteText;
+        }
+
+        if(ref){
+            document.getElementById('ref-box').classList.remove('hidden');
+            document.getElementById('ref-value').textContent = ref;
+        }
+
+        const primaryBtn = document.getElementById('primary-btn');
+        const secondaryBtn = document.getElementById('secondary-btn');
+        const whatsappHref = 'https://wa.me/message/KIDR3IIWU4QNJ1';
+
+        primaryBtn.textContent = cfg.primaryLabel;
+        if(cfg.primaryHref === '__whatsapp__'){
+            primaryBtn.href = whatsappHref; primaryBtn.target = '_blank'; primaryBtn.rel = 'noopener';
+        } else {
+            primaryBtn.href = cfg.primaryHref || 'index.html'; primaryBtn.removeAttribute('target');
+        }
+
+        secondaryBtn.textContent = cfg.secondaryLabel || 'Message us on WhatsApp';
+        if(cfg.secondaryHref){
+            secondaryBtn.href = cfg.secondaryHref; secondaryBtn.removeAttribute('target');
+        } else {
+            secondaryBtn.href = whatsappHref; secondaryBtn.target = '_blank'; secondaryBtn.rel = 'noopener';
+        }
+    </script>
+</body>
+</html>

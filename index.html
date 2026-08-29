@@ -45,6 +45,14 @@
         </div>
     </div>
 
+    <!-- Sale Banner -->
+    <div id="sale-banner" class="hidden bg-[#2D2A26] text-white">
+        <div class="max-w-[1400px] mx-auto px-4 md:px-8 py-2.5 flex items-center justify-center gap-2.5 text-center flex-wrap">
+            <span id="sale-banner-text" class="text-[12.5px] md:text-[13px] font-medium tracking-wide"></span>
+            <button id="sale-banner-cta" class="text-[12.5px] md:text-[13px] underline underline-offset-2 decoration-white/50 hover:decoration-white shrink-0">Shop the sale →</button>
+        </div>
+    </div>
+
     <!-- Header -->
     <header class="sticky top-0 z-40 glass border-b border-black/5">
         <div class="max-w-[1400px] mx-auto px-4 md:px-8">
@@ -499,6 +507,63 @@
 <script>
 const categories = CATEGORIES;
 const skinTypes = SKIN_TYPES;
+// Sale settings come from products.js (edit there, or via admin.html → "Sale settings").
+const SALE_CONFIG = (typeof SALE !== 'undefined' && SALE) ? SALE : { active:false, label:'Sale', discountPercent:0, endsAt:null };
+
+// True only while the sale is turned on AND the countdown hasn't run out yet —
+// once endsAt passes, this flips to false on its own and every price/badge
+// that depends on it reverts automatically, no page reload needed.
+function isSaleActive(){
+  if(!SALE_CONFIG || !SALE_CONFIG.active || !(SALE_CONFIG.discountPercent > 0) || !SALE_CONFIG.endsAt) return false;
+  const end = new Date(SALE_CONFIG.endsAt).getTime();
+  return !isNaN(end) && end > Date.now();
+}
+function salePrice(price, pct){ return Math.max(0, Math.round(price * (1 - pct/100))); }
+// The discount % that actually applies to THIS product right now. A product's
+// own saleMode always wins over the storewide sale: "custom" is discounted by its
+// own salePercent whether or not the storewide sale is running, "off" is never
+// discounted (even mid storewide-sale), and "default" simply follows the
+// storewide sale above.
+function productDiscountPercent(p){
+  if(p.saleMode === 'custom') return (p.salePercent > 0) ? p.salePercent : 0;
+  if(p.saleMode === 'off') return 0;
+  return isSaleActive() ? SALE_CONFIG.discountPercent : 0;
+}
+function isProductOnSale(p){ return productDiscountPercent(p) > 0; }
+// The price to actually charge/display for a product right now.
+function effectivePrice(p){ const pct = productDiscountPercent(p); return pct > 0 ? salePrice(p.price, pct) : p.price; }
+
+function formatCountdown(ms){
+  if(ms<=0) return '00:00:00';
+  const totalSec = Math.floor(ms/1000);
+  const d = Math.floor(totalSec/86400);
+  const h = Math.floor((totalSec%86400)/3600);
+  const m = Math.floor((totalSec%3600)/60);
+  const s = totalSec%60;
+  const pad = n=>String(n).padStart(2,'0');
+  return d>0 ? `${d}d ${pad(h)}h ${pad(m)}m ${pad(s)}s` : `${pad(h)}:${pad(m)}:${pad(s)}`;
+}
+function renderSaleBanner(){
+  const banner = $('#sale-banner');
+  if(!banner) return;
+  if(!isSaleActive()){ banner.classList.add('hidden'); return; }
+  const msLeft = new Date(SALE_CONFIG.endsAt).getTime() - Date.now();
+  banner.classList.remove('hidden');
+  $('#sale-banner-text').textContent = `🔥 ${SALE_CONFIG.label || 'Flash Sale'} — ${SALE_CONFIG.discountPercent}% off sitewide, ends in ${formatCountdown(msLeft)}`;
+}
+// Ticks every second: refreshes the banner's clock, and — only on the exact
+// second the sale flips on or off — re-renders everything else that shows
+// prices/badges so the whole site updates itself without a reload.
+let saleWasActive = null;
+function tickSale(){
+  renderSaleBanner();
+  const nowActive = isSaleActive();
+  if(saleWasActive !== null && saleWasActive !== nowActive){
+    renderPills(); apply(); renderCart();
+    if(modalProduct) openModal(modalProduct.id);
+  }
+  saleWasActive = nowActive;
+}
 
 // Fills in sensible defaults for any optional fields a product left out,
 // and assigns each product a stable position-based id.
@@ -509,6 +574,8 @@ function normalizeProducts(raw){
     name: p.name || 'Untitled product',
     category: p.category || CATEGORIES[0],
     price: Number(p.price) || 0,
+    saleMode: (p.saleMode === 'custom' || p.saleMode === 'off') ? p.saleMode : 'default',
+    salePercent: p.salePercent != null ? Number(p.salePercent) : null,
     rating: p.rating ?? 4.5,
     reviews: p.reviews ?? 25,
     skinTypes: (p.skinTypes && p.skinTypes.length) ? p.skinTypes : [...SKIN_TYPES],
@@ -543,7 +610,7 @@ const state = {
   // Filter out any ids from a previous, larger catalog that no longer exist.
   cart: savedCart.filter(ci => catalog.some(p=>p.id===ci.id)),
   wishlist: savedWishlist.filter(id => catalog.some(p=>p.id===id)),
-  filters:{ categories:new Set(), skin:new Set(), price:170000, best:false, new:false },
+  filters:{ categories:new Set(), skin:new Set(), price:170000, best:false, new:false, sale:false },
   sort:'best',
   search:''
 };
@@ -561,8 +628,24 @@ function updateCounts(){ $('#cart-count').textContent = state.cart.reduce((a,b)=
 // Render Category Pills
 function renderPills(){
   const wrap = $('#category-pills');
-  wrap.innerHTML = `<button data-cat="" class="pill pill-active whitespace-nowrap px-4 h-9 rounded-full border border-black/10 text-[13px]">All</button>` + categories.map(c=>`<button data-cat="${c}" class="pill whitespace-nowrap px-4 h-9 rounded-full border border-black/10 text-[13px] hover:bg-black/5">${c}</button>`).join('');
-  wrap.onclick = e => { const b=e.target.closest('button'); if(!b) return; $$('#category-pills .pill').forEach(p=>p.classList.remove('pill-active')); b.classList.add('pill-active'); state.filters.categories = b.dataset.cat ? new Set([b.dataset.cat]) : new Set(); state.page=1; apply(); window.scrollTo({top: $('#catalog').offsetTop-80, behavior:'smooth'}); };
+  const saleOn = state.products.some(isProductOnSale);
+  const salePill = saleOn ? `<button data-cat="__sale" class="pill whitespace-nowrap px-4 h-9 rounded-full border border-[#C8355B]/25 bg-[#C8355B]/10 text-[#C8355B] text-[13px] font-medium flex items-center gap-1">🔥 Sale</button>` : '';
+  wrap.innerHTML = `<button data-cat="" class="pill ${state.filters.sale?'':'pill-active'} whitespace-nowrap px-4 h-9 rounded-full border border-black/10 text-[13px]">All</button>` + salePill + categories.map(c=>`<button data-cat="${c}" class="pill whitespace-nowrap px-4 h-9 rounded-full border border-black/10 text-[13px] hover:bg-black/5">${c}</button>`).join('');
+  if(state.filters.sale){ wrap.querySelector('[data-cat="__sale"]')?.classList.add('pill-active','bg-[#C8355B]','text-white','border-[#C8355B]'); }
+  wrap.onclick = e => {
+    const b=e.target.closest('button'); if(!b) return;
+    $$('#category-pills .pill').forEach(p=>p.classList.remove('pill-active','bg-[#C8355B]','text-white','border-[#C8355B]'));
+    if(b.dataset.cat === '__sale'){
+      b.classList.add('pill-active','bg-[#C8355B]','text-white','border-[#C8355B]');
+      state.filters.sale = true;
+      state.filters.categories = new Set();
+    } else {
+      b.classList.add('pill-active');
+      state.filters.sale = false;
+      state.filters.categories = b.dataset.cat ? new Set([b.dataset.cat]) : new Set();
+    }
+    state.page=1; apply(); window.scrollTo({top: $('#catalog').offsetTop-80, behavior:'smooth'});
+  };
 }
 
 // Filters UI
@@ -574,7 +657,7 @@ function renderFilterOptions(){
   $('#filter-bestseller').onchange = e=>{ state.filters.best = e.target.checked; apply(); };
   $('#filter-new').onchange = e=>{ state.filters.new = e.target.checked; apply(); };
   $('#price-range').oninput = e=>{ state.filters.price = +e.target.value; $('#price-value').textContent = NGN(state.filters.price); apply(); };
-  $('#clear-filters').onclick = ()=>{ state.filters={categories:new Set(), skin:new Set(), price:170000, best:false, new:false}; $$('input[type=checkbox]').forEach(i=>i.checked=false); $('#price-range').value=170000; $('#price-value').textContent=NGN(170000); apply(); };
+  $('#clear-filters').onclick = ()=>{ state.filters={categories:new Set(), skin:new Set(), price:170000, best:false, new:false, sale:false}; $$('input[type=checkbox]').forEach(i=>i.checked=false); $('#price-range').value=170000; $('#price-value').textContent=NGN(170000); renderPills(); apply(); };
 }
 
 // Apply filters
@@ -587,6 +670,7 @@ function apply(){
   list = list.filter(p=> p.price <= state.filters.price);
   if(state.filters.best) list = list.filter(p=>p.bestseller);
   if(state.filters.new) list = list.filter(p=>p.isNew);
+  if(state.filters.sale) list = list.filter(isProductOnSale);
   switch(state.sort){
     case 'low': list.sort((a,b)=>a.price-b.price); break;
     case 'high': list.sort((a,b)=>b.price-a.price); break;
@@ -610,17 +694,23 @@ function renderProducts(){
         <button data-wish="${p.id}" class="absolute top-2.5 right-2.5 w-8 h-8 grid place-items-center bg-white/90 backdrop-blur rounded-full shadow hover:bg-white ${state.wishlist.includes(p.id)?'text-[#C8A96A]':''}">
           <svg width="18" height="18" fill="${state.wishlist.includes(p.id)?'currentColor':'none'}" stroke="currentColor" stroke-width="1.5"><path d="M9 15l-5.2-5C2.3 8.5 2.3 6 3.8 4.5c1.5-1.5 3.9-1.5 5.4 0l.8.8.8-.8c1.5-1.5 3.9-1.5 5.4 0 1.5 1.5 1.5 4 0 5.5L9 15z"/></svg>
         </button>
-        ${p.bestseller?'<span class="absolute top-2.5 left-2.5 px-2.5 py-1 text-[11px] font-medium bg-[#2D2A26] text-white rounded-full">Bestseller</span>':''}
-        ${p.isNew?'<span class="absolute top-2.5 left-2.5 px-2.5 py-1 text-[11px] font-medium bg-[#7A9277] text-white rounded-full">New</span>':''}
+        <div class="absolute top-2.5 left-2.5 z-10 flex flex-col items-start gap-1.5">
+          ${isProductOnSale(p)?`<span class="px-2.5 py-1 text-[11px] font-semibold bg-[#C8355B] text-white rounded-full shadow-sm">-${productDiscountPercent(p)}%</span>`:''}
+          ${p.bestseller?'<span class="px-2.5 py-1 text-[11px] font-medium bg-[#2D2A26] text-white rounded-full shadow-sm">Bestseller</span>':''}
+          ${p.isNew?'<span class="px-2.5 py-1 text-[11px] font-medium bg-[#7A9277] text-white rounded-full shadow-sm">New</span>':''}
+        </div>
         <button data-quick="${p.id}" class="absolute bottom-2.5 inset-x-2.5 h-9 bg-[#2D2A26] text-white rounded-full text-[13px] font-medium opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition md:block hidden">Quick add</button>
       </div>
       <div class="p-3.5 flex-1 flex flex-col">
         <p class="text-[11px] uppercase tracking-widest text-[#7A9277]">GlowEnvy</p>
         <h3 class="font-medium leading-snug mt-0.5 line-clamp-2 min-h-[40px] cursor-pointer" data-open="${p.id}">${p.name}</h3>
         <div class="flex items-center gap-1 mt-1"><span class="text-[#C8A96A] text-[13px]">${'★'.repeat(Math.round(p.rating))}${'☆'.repeat(5-Math.round(p.rating))}</span><span class="text-[11px] text-[#6B625C]">(${p.reviews})</span></div>
-        <div class="mt-auto pt-2 flex items-center justify-between">
-          <span class="font-medium">${NGN(p.price)}</span>
-          <button data-add="${p.id}" class="md:hidden w-8 h-8 grid place-items-center rounded-full border border-black/10">+</button>
+        <div class="mt-auto pt-2 flex items-center justify-between gap-2">
+          <div class="flex items-baseline gap-1.5 flex-wrap min-w-0">
+            <span class="font-medium">${NGN(effectivePrice(p))}</span>
+            ${isProductOnSale(p)?`<span class="text-[12px] text-[#9A8F88] line-through">${NGN(p.price)}</span>`:''}
+          </div>
+          <button data-add="${p.id}" class="md:hidden w-8 h-8 grid place-items-center rounded-full border border-black/10 shrink-0">+</button>
         </div>
       </div>
     </article>
@@ -648,8 +738,8 @@ function renderPagination(){
 function toggleWish(id){ if(state.wishlist.includes(id)) state.wishlist = state.wishlist.filter(x=>x!==id); else state.wishlist.push(id); save(); renderProducts(); }
 function addToCart(id,qty=1){ const item = state.cart.find(i=>i.id===id); if(item) item.qty+=qty; else state.cart.push({id, qty}); save(); toast('Added to bag'); renderCart(); }
 function renderCart(){ const box=$('#cart-items'); if(!state.cart.length){ box.innerHTML = `<div class="h-full grid place-items-center text-center p-10"><div><div class="w-16 h-16 mx-auto rounded-full bg-[#FDEBF0] grid place-items-center mb-3">🛍️</div><p class="font-medium">Your bag is empty</p><p class="text-[13px] text-[#6B625C] mt-1">Add some glow to get started</p></div></div>`; $('#cart-subtotal').textContent = NGN(0); return; }
-  box.innerHTML = state.cart.map(ci=>{ const p=state.products.find(x=>x.id===ci.id); return `<div class="flex gap-3 bg-white rounded-2xl p-3 border border-black/5"><img src="${p.image}" class="w-20 h-20 rounded-xl object-cover"><div class="flex-1 min-w-0"><p class="text-[13px] uppercase tracking-widest text-[#7A9277]">GlowEnvy</p><p class="font-medium leading-snug line-clamp-2">${p.name}</p><p class="text-[13px] text-[#6B625C]">${NGN(p.price)}</p><div class="mt-2 flex items-center gap-2"><button data-dec="${p.id}" class="w-7 h-7 rounded-full border">−</button><span class="w-6 text-center text-[14px]">${ci.qty}</span><button data-inc="${p.id}" class="w-7 h-7 rounded-full border">+</button><button data-rem="${p.id}" class="ml-auto text-[12px] text-[#B44] hover:underline">Remove</button></div></div></div>`; }).join('');
-  const subtotal = state.cart.reduce((s,ci)=>{ const p=state.products.find(x=>x.id===ci.id); return s + p.price*ci.qty; },0);
+  box.innerHTML = state.cart.map(ci=>{ const p=state.products.find(x=>x.id===ci.id); const priceHtml = isProductOnSale(p) ? `<span class="text-[13px] font-medium">${NGN(effectivePrice(p))}</span> <span class="text-[11px] text-[#9A8F88] line-through">${NGN(p.price)}</span>` : `<span class="text-[13px] text-[#6B625C]">${NGN(p.price)}</span>`; return `<div class="flex gap-3 bg-white rounded-2xl p-3 border border-black/5"><img src="${p.image}" class="w-20 h-20 rounded-xl object-cover"><div class="flex-1 min-w-0"><p class="text-[13px] uppercase tracking-widest text-[#7A9277]">GlowEnvy</p><p class="font-medium leading-snug line-clamp-2">${p.name}</p><p class="mt-0.5">${priceHtml}</p><div class="mt-2 flex items-center gap-2"><button data-dec="${p.id}" class="w-7 h-7 rounded-full border">−</button><span class="w-6 text-center text-[14px]">${ci.qty}</span><button data-inc="${p.id}" class="w-7 h-7 rounded-full border">+</button><button data-rem="${p.id}" class="ml-auto text-[12px] text-[#B44] hover:underline">Remove</button></div></div></div>`; }).join('');
+  const subtotal = state.cart.reduce((s,ci)=>{ const p=state.products.find(x=>x.id===ci.id); return s + effectivePrice(p)*ci.qty; },0);
   $('#cart-subtotal').textContent = NGN(subtotal);
   box.onclick = e=>{ const dec=e.target.closest('[data-dec]'); const inc=e.target.closest('[data-inc]'); const rem=e.target.closest('[data-rem]'); if(dec){ updateQty(+dec.dataset.dec,-1);} if(inc){ updateQty(+inc.dataset.inc,1);} if(rem){ state.cart = state.cart.filter(x=>x.id!==+rem.dataset.rem); save(); renderCart(); } };
 }
@@ -657,7 +747,7 @@ function updateQty(id,d){ const it=state.cart.find(x=>x.id===id); if(!it) return
 
 // Modal
 let modalQty=1, modalProduct=null;
-function openModal(id){ modalProduct = state.products.find(p=>p.id===id); modalQty=1; $('#modal-img').src = modalProduct.image; $('#modal-name').textContent = modalProduct.name; $('#modal-price').textContent = NGN(modalProduct.price); $('#modal-desc').textContent = modalProduct.description; $('#modal-stars').textContent = '★★★★★'.slice(0, Math.round(modalProduct.rating)); $('#modal-reviews').textContent = `(${modalProduct.reviews} reviews)`; $('#modal-benefits').innerHTML = toBulletList(modalProduct.benefits).map(b=>`<li>${escHtml(b)}</li>`).join('') || '<li>No key benefits listed for this product yet.</li>'; $('#modal-ing').innerHTML = toBulletList(modalProduct.ingredients).map(i=>`<li>${escHtml(i)}</li>`).join('') || '<li>No key ingredients listed for this product yet.</li>'; $('#modal-use').textContent = modalProduct.howToUse; $('#modal-caution').textContent = modalProduct.caution || 'No specific cautions noted for this product — always patch test new products before first use.'; $('#modal-skin').innerHTML = modalProduct.skinTypes.map(s=>`<span class="px-2.5 py-1 bg-[#E8EDE7] text-[#2D2A26] rounded-full text-[11px] capitalize">${s}</span>`).join(''); $('#qty').textContent = '1'; $('#modal-thumbs').innerHTML = Array.from({length:4}).map((_,i)=>`<button class="aspect-square rounded-xl overflow-hidden border ${i===0?'border-[#7A9277]':'border-black/10'}"><img src="${modalProduct.image}" class="w-full h-full object-cover"></button>`).join(''); $('#product-modal').classList.remove('hidden'); document.body.style.overflow='hidden'; }
+function openModal(id){ modalProduct = state.products.find(p=>p.id===id); modalQty=1; $('#modal-img').src = modalProduct.image; $('#modal-name').textContent = modalProduct.name; $('#modal-price').innerHTML = isProductOnSale(modalProduct) ? `${NGN(effectivePrice(modalProduct))} <span class="text-[15px] text-[#9A8F88] line-through font-normal ml-1">${NGN(modalProduct.price)}</span> <span class="text-[12px] text-[#C8355B] font-medium ml-1 align-middle">-${productDiscountPercent(modalProduct)}%</span>` : NGN(modalProduct.price); $('#modal-desc').textContent = modalProduct.description; $('#modal-stars').textContent = '★★★★★'.slice(0, Math.round(modalProduct.rating)); $('#modal-reviews').textContent = `(${modalProduct.reviews} reviews)`; $('#modal-benefits').innerHTML = toBulletList(modalProduct.benefits).map(b=>`<li>${escHtml(b)}</li>`).join('') || '<li>No key benefits listed for this product yet.</li>'; $('#modal-ing').innerHTML = toBulletList(modalProduct.ingredients).map(i=>`<li>${escHtml(i)}</li>`).join('') || '<li>No key ingredients listed for this product yet.</li>'; $('#modal-use').textContent = modalProduct.howToUse; $('#modal-caution').textContent = modalProduct.caution || 'No specific cautions noted for this product — always patch test new products before first use.'; $('#modal-skin').innerHTML = modalProduct.skinTypes.map(s=>`<span class="px-2.5 py-1 bg-[#E8EDE7] text-[#2D2A26] rounded-full text-[11px] capitalize">${s}</span>`).join(''); $('#qty').textContent = '1'; $('#modal-thumbs').innerHTML = Array.from({length:4}).map((_,i)=>`<button class="aspect-square rounded-xl overflow-hidden border ${i===0?'border-[#7A9277]':'border-black/10'}"><img src="${modalProduct.image}" class="w-full h-full object-cover"></button>`).join(''); $('#product-modal').classList.remove('hidden'); document.body.style.overflow='hidden'; }
 function closeModal(){ $('#product-modal').classList.add('hidden'); document.body.style.overflow=''; }
 $('#close-modal').onclick = closeModal; $('#modal-backdrop').onclick = closeModal;
 $('#qty-minus').onclick = ()=>{ modalQty=Math.max(1,modalQty-1); $('#qty').textContent=modalQty; };
@@ -704,7 +794,7 @@ let pendingOrder = {
 
 function openShippingForm(email){
   pendingOrder.email = email;
-  const subtotal = state.cart.reduce((s,ci)=>{ const p=state.products.find(x=>x.id===ci.id); return s + (p?p.price*ci.qty:0); },0);
+  const subtotal = state.cart.reduce((s,ci)=>{ const p=state.products.find(x=>x.id===ci.id); return s + (p?effectivePrice(p)*ci.qty:0); },0);
   pendingOrder.subtotal = subtotal;
   const emailDisplay = document.getElementById('confirmed-email-display');
   const proceedLabel = document.getElementById('proceed-label');
@@ -794,7 +884,7 @@ document.getElementById('shipping-form').onsubmit = (e)=>{
       ],
       cart: state.cart.map(ci => {
         const p = state.products.find(x=>x.id===ci.id);
-        return { id: ci.id, name: p?p.name:'', qty: ci.qty, price: p?p.price:0 };
+        return { id: ci.id, name: p?p.name:'', qty: ci.qty, price: p?effectivePrice(p):0 };
       }),
       shipping: shippingData
     },
@@ -810,7 +900,7 @@ document.getElementById('shipping-form').onsubmit = (e)=>{
         shipping: shippingData,
         cart: state.cart.map(ci => {
           const p = state.products.find(x=>x.id===ci.id);
-          return { id: ci.id, name: p?p.name:'', qty: ci.qty, price: p?p.price:0 };
+          return { id: ci.id, name: p?p.name:'', qty: ci.qty, price: p?effectivePrice(p):0 };
         }),
         subtotal: pendingOrder.subtotal
       };
@@ -825,6 +915,7 @@ document.getElementById('shipping-form').onsubmit = (e)=>{
         .then(result => {
           console.log('[Verify] Result', result);
           setCheckoutLoading(false);
+          const itemCount = verifyPayload.cart.reduce((s,i)=>s+i.qty,0);
           if(result.verified){
             // Step 2: Also send directly from frontend as backup (SheetMonkey)
             const orderPayload = buildSheetMonkeyPayload({
@@ -839,14 +930,16 @@ document.getElementById('shipping-form').onsubmit = (e)=>{
 
             state.cart = [];
             save();
-            renderCart();
-            closeCart();
-            toast('Payment confirmed — order saved! 🎉');
-            setTimeout(()=>{ 
-              alert(`Thank you ${fullName}! Your order ${response.reference} is confirmed. Shipping to ${city}, ${stateVal}. Confirmation sent to ${pendingOrder.email}.`);
-            }, 500);
+            window.location.href = 'payment-success.html?' + new URLSearchParams({
+              ref: response.reference,
+              name: fullName,
+              email: pendingOrder.email,
+              city: city,
+              state: stateVal,
+              total: String(pendingOrder.subtotal),
+              items: String(itemCount)
+            }).toString();
           } else {
-            toast('Payment made but verification failed — contact us with ref: ' + response.reference);
             // Still send to sheet as pending
             const orderPayload = buildSheetMonkeyPayload({
               reference: response.reference,
@@ -857,11 +950,17 @@ document.getElementById('shipping-form').onsubmit = (e)=>{
               paystackData: result.data
             });
             sendToSheetMonkey(orderPayload);
+            window.location.href = 'payment-declined.html?' + new URLSearchParams({
+              ref: response.reference,
+              reason: 'unverified',
+              email: pendingOrder.email
+            }).toString();
           }
         })
         .catch((err) => {
           console.error('[Verify] Failed', err);
           setCheckoutLoading(false);
+          const itemCount = state.cart.reduce((s,ci)=>s+ci.qty,0);
           // Fallback: send directly to SheetMonkey even if verification endpoint fails
           const orderPayload = buildSheetMonkeyPayload({
             reference: response.reference,
@@ -871,18 +970,32 @@ document.getElementById('shipping-form').onsubmit = (e)=>{
             subtotal: pendingOrder.subtotal,
             error: 'verification endpoint failed: ' + err.message
           });
-          sendToSheetMonkey(orderPayload).then(()=>{
-            toast('Payment received! Ref: ' + response.reference + ' — we will confirm shortly.');
-          });
+          sendToSheetMonkey(orderPayload);
           state.cart = [];
           save();
-          renderCart();
-          closeCart();
+          // Paystack itself confirmed success here — our own verification call
+          // just failed to reach the server — so this still goes to the success
+          // page, flagged as pending so the copy stays accurate.
+          window.location.href = 'payment-success.html?' + new URLSearchParams({
+            ref: response.reference,
+            name: fullName,
+            email: pendingOrder.email,
+            city: city,
+            state: stateVal,
+            total: String(pendingOrder.subtotal),
+            items: String(itemCount),
+            pending: '1'
+          }).toString();
         });
     },
     onCancel: () => { 
       setProceedLoading(false);
-      toast('Checkout cancelled'); 
+      window.location.href = 'payment-declined.html?' + new URLSearchParams({
+        ref: pendingOrder.reference || '',
+        reason: 'cancelled',
+        email: pendingOrder.email || '',
+        items: String(state.cart.reduce((s,ci)=>s+ci.qty,0))
+      }).toString();
     }
   });
 };
@@ -890,7 +1003,7 @@ document.getElementById('shipping-form').onsubmit = (e)=>{
 function buildSheetMonkeyPayload({reference, verified, shipping, cart, subtotal, paystackData, error}){
   const cartSummary = cart.map(ci=>{
     const p = state.products.find(x=>x.id===ci.id);
-    return p ? `${p.name} x${ci.qty} (₦${p.price})` : `ID:${ci.id} x${ci.qty}`;
+    return p ? `${p.name} x${ci.qty} (₦${effectivePrice(p)})` : `ID:${ci.id} x${ci.qty}`;
   }).join('; ');
   const now = new Date();
   return {
@@ -903,7 +1016,7 @@ function buildSheetMonkeyPayload({reference, verified, shipping, cart, subtotal,
     Country: 'Nigeria',
     Note: shipping.note || '',
     OrderSummary: cartSummary,
-    ItemsJSON: JSON.stringify(cart.map(ci=>{ const p=state.products.find(x=>x.id===ci.id); return {name:p?.name, qty:ci.qty, price:p?.price}; })),
+    ItemsJSON: JSON.stringify(cart.map(ci=>{ const p=state.products.find(x=>x.id===ci.id); return {name:p?.name, qty:ci.qty, price:p?effectivePrice(p):0}; })),
     Subtotal: subtotal,
     SubtotalFormatted: NGN(subtotal),
     PaystackReference: reference,
@@ -1053,8 +1166,17 @@ const testimonials = [
   {name:'Bose E.', text:'“I used the Fruity Glow Body Oil with the 3D Glow Black Soap, and honestly, my skin has been glowing! 😍 My skin looks brighter, smoother and more radiant. I love that the products work so well together, and I’m really happy with my results.”', role:'Normal skin', img:'https://res.cloudinary.com/ny0or3ln/image/upload/v1787264856/6c46c872-4dd1-446e-8574-b8738c39f617_jnssq4.jpg'}
 ];
 function renderTestimonials(){ const track=$('#test-track'); track.innerHTML = testimonials.map(t=>`<div class="min-w-full md:min-w-[48%] lg:min-w-[32%] p-3"><div class="h-full bg-white rounded-[24px] border border-black/5 p-6 shadow-soft"><div class="flex items-center gap-3"><img src="${t.img}" class="w-11 h-11 rounded-full object-cover"><div><p class="font-medium leading-tight">${t.name}</p><p class="text-[12px] text-[#6B625C]">${t.role}</p></div></div><p class="mt-4 text-[15px] leading-relaxed">“${t.text}”</p><div class="mt-3 text-[#C8A96A]">★★★★★</div></div></div>`).join(''); }
-let testIndex=0; function slideTest(dir){ const track=$('#test-track'); const max = testimonials.length-1; testIndex = Math.max(0, Math.min(max, testIndex+dir)); const w = track.firstElementChild.offsetWidth + 24; track.style.transform = `translateX(-${testIndex * w}px)`; }
+// Each slide's width already includes its own left/right padding (which is
+// what creates the visual gap between cards), so the step distance is just
+// the slide's own offsetWidth — adding extra px on top of that caused the
+// slides to drift further out of alignment with every click, which was most
+// visible on mobile where a single slide fills the whole screen.
+let testIndex=0; function slideTest(dir){ const track=$('#test-track'); if(!track.firstElementChild) return; const max = testimonials.length-1; testIndex = Math.max(0, Math.min(max, testIndex+dir)); const w = track.firstElementChild.offsetWidth; track.style.transform = `translateX(-${testIndex * w}px)`; }
 $('#test-prev').onclick = ()=>slideTest(-1); $('#test-next').onclick = ()=>slideTest(1);
+// Re-align to the current slide after a resize/orientation change, since the
+// slide width (and therefore the correct translateX) changes with viewport width.
+let testResizeTimer;
+window.addEventListener('resize', ()=>{ clearTimeout(testResizeTimer); testResizeTimer = setTimeout(()=>slideTest(0), 150); });
 
 // Quiz
 const quizData = [
@@ -1063,7 +1185,7 @@ const quizData = [
   {q:'Routine preference?', k:'routine', a:[['minimal','Minimal (3 steps)'],['moderate','Moderate (4-5)'],['full','Full routine']]}
 ];
 let quizStep=0, answers={};
-function renderQuiz(){ const wrap=$('#quiz-steps'); if(quizStep>=quizData.length){ const rec = recommend(); wrap.innerHTML = `<div class="animate-in"><h4 class="serif text-[22px]">Your GlowEnvy routine</h4><p class="text-[14px] text-[#6B625C] mt-1">Picked for ${answers.skin} skin, targeting ${answers.concern}.</p><div class="mt-4 space-y-3">${rec.map(p=>`<div class="flex gap-3 items-center p-3 border border-black/5 rounded-2xl"><img src="${p.image}" class="w-14 h-14 rounded-xl object-cover"><div class="flex-1 min-w-0"><p class="text-[12px] uppercase tracking-widest text-[#7A9277]">${p.category}</p><p class="font-medium leading-tight truncate">${p.name}</p></div><span class="text-[14px]">${NGN(p.price)}</span><button data-add-rec="${p.id}" class="ml-2 w-8 h-8 grid place-items-center rounded-full bg-[#2D2A26] text-white">+</button></div>`).join('')}</div><button id="quiz-restart" class="mt-5 text-[13px] underline">Retake quiz</button></div>`; wrap.querySelectorAll('[data-add-rec]').forEach(b=>b.onclick=()=>addToCart(+b.dataset.addRec,1)); $('#quiz-restart').onclick=()=>{ quizStep=0; answers={}; renderQuiz(); }; return; }
+function renderQuiz(){ const wrap=$('#quiz-steps'); if(quizStep>=quizData.length){ const rec = recommend(); wrap.innerHTML = `<div class="animate-in"><h4 class="serif text-[22px]">Your GlowEnvy routine</h4><p class="text-[14px] text-[#6B625C] mt-1">Picked for ${answers.skin} skin, targeting ${answers.concern}.</p><div class="mt-4 space-y-3">${rec.map(p=>`<div class="flex gap-3 items-center p-3 border border-black/5 rounded-2xl"><img src="${p.image}" class="w-14 h-14 rounded-xl object-cover"><div class="flex-1 min-w-0"><p class="text-[12px] uppercase tracking-widest text-[#7A9277]">${p.category}</p><p class="font-medium leading-tight truncate">${p.name}</p></div><span class="text-[14px]">${NGN(effectivePrice(p))}</span><button data-add-rec="${p.id}" class="ml-2 w-8 h-8 grid place-items-center rounded-full bg-[#2D2A26] text-white">+</button></div>`).join('')}</div><button id="quiz-restart" class="mt-5 text-[13px] underline">Retake quiz</button></div>`; wrap.querySelectorAll('[data-add-rec]').forEach(b=>b.onclick=()=>addToCart(+b.dataset.addRec,1)); $('#quiz-restart').onclick=()=>{ quizStep=0; answers={}; renderQuiz(); }; return; }
   const step = quizData[quizStep]; wrap.innerHTML = `<p class="text-[13px] text-[#6B625C]">Step ${quizStep+1} of 3</p><h4 class="text-[18px] font-medium mt-1">${step.q}</h4><div class="mt-4 grid gap-2">${step.a.map(([v,l])=>`<button data-v="${v}" class="text-left px-4 h-12 rounded-2xl border border-black/10 hover:bg-[#FDEBF0]/50">${l}</button>`).join('')}</div>`; wrap.querySelectorAll('button[data-v]').forEach(b=>b.onclick=()=>{ answers[step.k]=b.dataset.v; quizStep++; renderQuiz(); }); }
 function recommend(){ const map={acne:'Salicylic Acid', dullness:'Vitamin C', dryness:'Hyaluronic Acid', aging:'Retinol', sensitivity:'Centella'}; const ing = map[answers.concern]||'Niacinamide'; const pickType = (kws, filterFn) => { const pool = state.products.filter(p=> kws.some(k=>p.name.toLowerCase().includes(k))); return pool.filter(p=>p.skinTypes.includes(answers.skin)).find(filterFn) || pool.find(filterFn) || pool[0]; }; const cleanser = pickType(['cleanser','wash'], p=>p.name.includes('Gel')); const serum = pickType(['serum'], p=>p.name.toLowerCase().includes(ing.split(' ')[0].toLowerCase())); const moisturizer = pickType(['cream','moistur','lotion'], ()=>true); const spfPool = state.products.filter(p=> /spf|sunscreen|sun\s?protection/i.test(p.name) || p.category==='Sun Protection'); const spf = spfPool.find(p=>p.skinTypes.includes(answers.skin)) || spfPool[0]; const list=[cleanser, serum, moisturizer]; if(answers.routine!=='minimal') list.push(spf); return list.filter(Boolean).slice(0,4); }
 function openQuiz(){ $('#quiz-modal').classList.remove('hidden'); quizStep=0; answers={}; renderQuiz(); }
@@ -1074,8 +1196,9 @@ $('#quiz-hero').onclick = openQuiz; $('#quiz-header').onclick = openQuiz; $('#cl
 $('#newsletter').onsubmit = e=>{ e.preventDefault(); const email = e.target.querySelector('input').value; localStorage.setItem('ge_news', email); $('#news-msg').classList.remove('hidden'); e.target.reset(); };
 
 // Init
-function init(){ renderPills(); renderFilterOptions(); renderTestimonials(); updateCounts(); apply(); }
+function init(){ renderPills(); renderFilterOptions(); renderTestimonials(); updateCounts(); apply(); tickSale(); setInterval(tickSale, 1000); }
 init();
+$('#sale-banner-cta').onclick = ()=>{ document.querySelector('#category-pills [data-cat="__sale"]')?.click(); };
 
 // Close dropdowns on outside click
 document.addEventListener('click', e=>{ if(!e.target.closest('#shop-toggle') && !e.target.closest('#shop-dropdown')) shopDrop.classList.add('hidden'); });
