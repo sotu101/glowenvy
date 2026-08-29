@@ -110,9 +110,9 @@
                 </div>
                 <div class="mt-10 flex items-center gap-6">
                     <div class="flex -space-x-2">
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80" class="w-9 h-9 rounded-full border-2 border-white object-cover" alt="">
-                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80" class="w-9 h-9 rounded-full border-2 border-white object-cover" alt="">
-                        <img src="https://images.unsplash.com/photo-1526510747491-58f928ec870f?w=80" class="w-9 h-9 rounded-full border-2 border-white object-cover" alt="">
+                        <img src="https://res.cloudinary.com/ny0or3ln/image/upload/v1787612086/e5a35841-3209-4143-b929-0ca4ad4b080d_lldrj1.jpg" class="w-9 h-9 rounded-full border-2 border-white object-cover" alt="">
+                        <img src="https://res.cloudinary.com/ny0or3ln/image/upload/v1787563469/pic_gxartc.jpg" class="w-9 h-9 rounded-full border-2 border-white object-cover" alt="">
+                        <img src="https://res.cloudinary.com/ny0or3ln/image/upload/v1787563819/6c46c872-4dd1-446e-8574-b8738c39f617_poljwv.jpg" class="w-9 h-9 rounded-full border-2 border-white object-cover" alt="">
                     </div>
                     <div class="text-[13px] leading-tight">
                         <div class="flex text-[#C8A96A]">★★★★★</div>
@@ -1048,8 +1048,8 @@ $('#shipping-backdrop').onclick = closeShipping;
 // Testimonials
 const testimonials = [
   {name:'Amara O.', text:'I honestly love the difference! 😍 My skin looks brighter, more even and much more radiant than before. The dullness and uneven-looking areas have improved so much, and my skin looks healthier and smoother now.', role:'Combination skin', img:'https://res.cloudinary.com/ny0or3ln/image/upload/v1787151619/pic_va73kq.jpg'},
-  {name:'Tolu A.', text:'“My skin is naturally dry, so I’m always careful about the products I use. I started using the Caramella Set and I love how soft and moisturised my skin feels. It gave me that healthy, clear glow without leaving my skin feeling dry. I’m really impressed with the results.”', role:'Dry skin', img:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200'},
-  {name:'Zainab M.', text:'“I have combination/oily skin and I was scared of using products that would make me too oily. I tried the 3D Glow Black Soap and Bright Boost Glow Serum, and I really love how my skin looks. My skin feels cleaner, brighter and more even, without that heavy feeling.', role:'Oily/Combination Skin', img:'https://images.unsplash.com/photo-1526510747491-58f928ec870f?w=200'},
+  {name:'Tolu A.', text:'“My skin is naturally dry, so I’m always careful about the products I use. I started using the Caramella Set and I love how soft and moisturised my skin feels. It gave me that healthy, clear glow without leaving my skin feeling dry. I’m really impressed with the results.”', role:'Dry skin', img:'https://res.cloudinary.com/ny0or3ln/image/upload/v1787563819/6c46c872-4dd1-446e-8574-b8738c39f617_poljwv.jpg'},
+  {name:'Zainab M.', text:'“I have combination/oily skin and I was scared of using products that would make me too oily. I tried the 3D Glow Black Soap and Bright Boost Glow Serum, and I really love how my skin looks. My skin feels cleaner, brighter and more even, without that heavy feeling.', role:'Oily/Combination Skin', img:'https://res.cloudinary.com/ny0or3ln/image/upload/v1787612086/e5a35841-3209-4143-b929-0ca4ad4b080d_lldrj1.jpg'},
   {name:'Bose E.', text:'“I used the Fruity Glow Body Oil with the 3D Glow Black Soap, and honestly, my skin has been glowing! 😍 My skin looks brighter, smoother and more radiant. I love that the products work so well together, and I’m really happy with my results.”', role:'Normal skin', img:'https://res.cloudinary.com/ny0or3ln/image/upload/v1787264856/6c46c872-4dd1-446e-8574-b8738c39f617_jnssq4.jpg'}
 ];
 function renderTestimonials(){ const track=$('#test-track'); track.innerHTML = testimonials.map(t=>`<div class="min-w-full md:min-w-[48%] lg:min-w-[32%] p-3"><div class="h-full bg-white rounded-[24px] border border-black/5 p-6 shadow-soft"><div class="flex items-center gap-3"><img src="${t.img}" class="w-11 h-11 rounded-full object-cover"><div><p class="font-medium leading-tight">${t.name}</p><p class="text-[12px] text-[#6B625C]">${t.role}</p></div></div><p class="mt-4 text-[15px] leading-relaxed">“${t.text}”</p><div class="mt-3 text-[#C8A96A]">★★★★★</div></div></div>`).join(''); }
