@@ -1,37 +1,14 @@
+
 // netlify/functions/verify-payment.js
-// Verifies a Paystack transaction server-side, then forwards the CONFIRMED order to SheetMonkey.
-//
-// Required Netlify environment variables (Site settings → Environment variables):
-//   PAYSTACK_SECRET_KEY  - your Paystack secret key. Without this, the function refuses to
-//                          verify anything (no more silent "dev mode" auto-approval).
-//   SHEETMONKEY_URL      - your SheetMonkey form endpoint. No longer hardcoded/committed to the repo.
-//   ALLOWED_ORIGINS       - comma-separated list of origins allowed to call this function, e.g.
-//                          "https://glowenvy.netlify.app,https://www.glowenvyivy.com"
-//                          If unset, CORS falls back to "*" (open) with a warning in the logs —
-//                          fine while testing, but set this before you launch for real.
+// Verifies Paystack transaction and forwards order to SheetMonkey
 
 exports.handler = async (event, context) => {
-  const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
-    .split(',')
-    .map(o => o.trim())
-    .filter(Boolean);
-
-  const requestOrigin = event.headers.origin || event.headers.Origin || '';
-  let allowOriginHeader = '*';
-
-  if (allowedOrigins.length > 0) {
-    // Only reflect the origin back if it's on the allowlist; otherwise deny.
-    allowOriginHeader = allowedOrigins.includes(requestOrigin) ? requestOrigin : 'null';
-  } else {
-    console.warn('ALLOWED_ORIGINS is not set — CORS is open to any site. Set this env var before going live.');
-  }
-
+  // CORS headers
   const headers = {
-    'Access-Control-Allow-Origin': allowOriginHeader,
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Content-Type': 'application/json',
-    'Vary': 'Origin'
+    'Content-Type': 'application/json'
   };
 
   if (event.httpMethod === 'OPTIONS') {
@@ -51,23 +28,38 @@ exports.handler = async (event, context) => {
     }
 
     const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
-    const SHEETMONKEY_URL = process.env.SHEETMONKEY_URL;
+    const SHEETMONKEY_URL = process.env.SHEETMONKEY_URL || 'https://api.sheetmonkey.io/form/nwzBDuKWDpHMDroZQDqnRc'; // hardcoded fallback + env var
 
     if (!PAYSTACK_SECRET_KEY) {
-      // IMPORTANT: never auto-verify when the secret is missing. Doing so used to let
-      // anyone POST a made-up reference and get treated as a paid, confirmed order.
-      console.error('PAYSTACK_SECRET_KEY is not set — refusing to verify without a real Paystack check.');
+      if (process.env.CONTEXT === 'production') {
+        // Never silently treat an order as paid in production just because
+        // the key is missing — that would accept free orders. Fail loudly
+        // instead so this gets noticed and fixed (Site settings -> Environment
+        // variables -> PAYSTACK_SECRET_KEY) rather than quietly shipping free stock.
+        console.error('PAYSTACK_SECRET_KEY is not set in the production environment - refusing to auto-verify');
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ verified: false, error: 'Payment verification is not configured. Please contact support before retrying.' })
+        };
+      }
+      console.warn('PAYSTACK_SECRET_KEY not set - returning mock verified in dev');
+      // In dev without secret, allow but mark as dev
+      const payloadForSheet = buildSheetPayload({ reference, email, shipping, cart, subtotal, paystackData: { dev: true }, verified: true });
+
+      // Try SheetMonkey even in dev if URL provided
+      if (SHEETMONKEY_URL) {
+        await sendToSheetMonkey(SHEETMONKEY_URL, payloadForSheet);
+      }
+
       return {
-        statusCode: 500,
+        statusCode: 200,
         headers,
-        body: JSON.stringify({
-          verified: false,
-          error: 'Payment verification is not configured on the server. Set PAYSTACK_SECRET_KEY in Netlify environment variables.'
-        })
+        body: JSON.stringify({ verified: true, devMode: true, message: 'Dev mode - set PAYSTACK_SECRET_KEY in Netlify', data: { reference } })
       };
     }
 
-    // Verify with Paystack — this is the only source of truth for whether payment succeeded.
+    // Verify with Paystack
     const paystackRes = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, {
       method: 'GET',
       headers: {
@@ -87,7 +79,7 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Payment verified — now record it in SheetMonkey.
+    // Payment verified - now send to SheetMonkey
     const orderPayload = buildSheetPayload({
       reference,
       email: email || paystackData.data.customer?.email,
@@ -102,7 +94,7 @@ exports.handler = async (event, context) => {
       const sheetResult = await sendToSheetMonkey(SHEETMONKEY_URL, orderPayload);
       console.log('SheetMonkey result:', sheetResult);
     } else {
-      console.error('SHEETMONKEY_URL is not set — this order was verified but NOT recorded anywhere. Payload:', orderPayload);
+      console.log('SHEETMONKEY_URL not set - order payload:', orderPayload);
     }
 
     return {
@@ -131,7 +123,7 @@ function buildSheetPayload({ reference, email, shipping, cart, subtotal, paystac
   const cartArray = Array.isArray(cart) ? cart : [];
   const cartSummary = cartArray.map(item => `${item.name || 'Item'} x${item.qty || 1} @ ₦${item.price || 0}`).join('; ');
   const now = new Date();
-
+  
   return {
     Email: email || safeShipping.email || paystackData?.customer?.email || '',
     FullName: safeShipping.fullName || safeShipping.full_name || '',
@@ -160,7 +152,7 @@ function buildSheetPayload({ reference, email, shipping, cart, subtotal, paystac
 }
 
 async function sendToSheetMonkey(url, payload) {
-  // SheetMonkey is picky — try JSON first, then form-encoded.
+  // SheetMonkey is picky - try JSON first, then form-encoded
   console.log('[SheetMonkey] Attempting to send to', url);
   console.log('[SheetMonkey] Payload:', JSON.stringify(payload).slice(0, 500));
 
@@ -184,6 +176,7 @@ async function sendToSheetMonkey(url, payload) {
   try {
     const params = new URLSearchParams();
     Object.entries(payload).forEach(([k, v]) => {
+      // SheetMonkey likes string values
       if (v !== undefined && v !== null) {
         params.append(k, String(v));
       }
