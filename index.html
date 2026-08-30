@@ -917,17 +917,10 @@ document.getElementById('shipping-form').onsubmit = (e)=>{
           setCheckoutLoading(false);
           const itemCount = verifyPayload.cart.reduce((s,i)=>s+i.qty,0);
           if(result.verified){
-            // Step 2: Also send directly from frontend as backup (SheetMonkey)
-            const orderPayload = buildSheetMonkeyPayload({
-              reference: response.reference,
-              verified: true,
-              shipping: shippingData,
-              cart: state.cart,
-              subtotal: pendingOrder.subtotal,
-              paystackData: result.data
-            });
-            sendToSheetMonkey(orderPayload);
-
+            // The Netlify function above already forwarded this order to
+            // SheetMonkey server-side once it confirmed the payment with
+            // Paystack — sending it again from here would double-log every
+            // real sale, so this path only handles the redirect.
             state.cart = [];
             save();
             window.location.href = 'payment-success.html?' + new URLSearchParams({
