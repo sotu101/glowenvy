@@ -511,7 +511,7 @@ const PRODUCTS = [
     "salePercent": null,
     "caution": "",
     "skinTypes": [],
-    "bestseller": false,
+    "bestseller": true,
     "isNew": true,
     "rating": 4.5,
     "reviews": 25
