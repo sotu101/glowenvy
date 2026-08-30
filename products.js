@@ -499,7 +499,7 @@ const PRODUCTS = [
   },
   {
     "id": 31,
-    "name": "hello",
+    "name": "This is a test",
     "category": "Face Care",
     "price": 40000,
     "image": "https://res.cloudinary.com/ny0or3ln/image/upload/v1785099421/samples/coffee.jpg",
@@ -508,7 +508,7 @@ const PRODUCTS = [
     "ingredients": "hi",
     "howToUse": "hi",
     "saleMode": "custom",
-    "salePercent": 25,
+    "salePercent": 35,
     "caution": "",
     "skinTypes": [],
     "bestseller": true,
