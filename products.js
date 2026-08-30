@@ -501,7 +501,7 @@ const PRODUCTS = [
     "id": 31,
     "name": "hello",
     "category": "Face Care",
-    "price": 40,
+    "price": 40000,
     "image": "https://res.cloudinary.com/ny0or3ln/image/upload/v1785099421/samples/coffee.jpg",
     "description": "hello testing",
     "benefits": "hi",
