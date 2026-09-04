@@ -293,7 +293,7 @@
               <li>Helloglowenvyivy@gmail.com</li>
             <li>+234 803 289 3457</li><li>Lagos, Nigeria</li><li class="pt-2">Instagram: <a href="#" class="text-white hover:underline">@Glow_envy_by_ivy_</a></li></ul></div>
         </div>
-        <div class="border-t border-white/10"><div class="max-w-[1400px] mx-auto px-4 md:px-8 py-5 text-[12px] text-[#9A8F88] flex justify-between"><span>© 2025 GlowEnvy by Ivy</span><span>Made with ♡ By Tobbyhq</span></div></div>
+        <div class="border-t border-white/10"><div class="max-w-[1400px] mx-auto px-4 md:px-8 py-5 text-[12px] text-[#9A8F88] flex justify-between"><span>© 2026 GlowEnvy by Ivy</span><span>Made with ♡ By Tobbyhq</span></div></div>
     </footer>
 
     <!-- Cart Drawer -->
@@ -905,8 +905,8 @@ document.getElementById('shipping-form').onsubmit = (e)=>{
         subtotal: pendingOrder.subtotal
       };
 
-      // Step 1: Verify payment via Netlify function (which also sends to SheetMonkey)
-      fetch('/.netlify/functions/verify-payment', {
+      // Step 1: Verify payment via our Vercel function (which also sends to SheetMonkey)
+      fetch('/api/verify-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(verifyPayload)
@@ -917,7 +917,7 @@ document.getElementById('shipping-form').onsubmit = (e)=>{
           setCheckoutLoading(false);
           const itemCount = verifyPayload.cart.reduce((s,i)=>s+i.qty,0);
           if(result.verified){
-            // The Netlify function above already forwarded this order to
+            // The Vercel function above already forwarded this order to
             // SheetMonkey server-side once it confirmed the payment with
             // Paystack — sending it again from here would double-log every
             // real sale, so this path only handles the redirect.
